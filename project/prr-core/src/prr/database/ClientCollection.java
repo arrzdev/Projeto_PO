@@ -1,6 +1,6 @@
 package prr.database;
 
-import prr.models.Client;
+import prr.clients.Client;
 
 public class ClientCollection extends AbstractCollection<Client> {
     public Client findByName(String name) {

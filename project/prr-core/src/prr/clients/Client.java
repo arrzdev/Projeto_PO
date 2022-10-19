@@ -1,6 +1,8 @@
-package prr.models;
+package prr.clients;
 
 import java.io.Serializable;
+
+import prr.database.AbstractModel;
 
 public class Client extends AbstractModel implements Serializable {
     private String _name;

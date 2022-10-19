@@ -1,6 +1,9 @@
-package prr.models;
+package prr.terminals;
 
 import java.io.Serializable;
+
+import prr.clients.Client;
+import prr.database.AbstractModel;
 
 abstract public class Terminal extends AbstractModel implements Serializable {
 

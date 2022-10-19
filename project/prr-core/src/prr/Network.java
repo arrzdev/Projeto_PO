@@ -16,7 +16,7 @@ public class Network implements Serializable {
 	/** Serial number for serialization. */
 	private static final long serialVersionUID = 202208091753L;
 
-	private String _database = new Database();
+	private Database _database = new Database();
 
 	/**
 	 * Read text input file and create corresponding domain entities.

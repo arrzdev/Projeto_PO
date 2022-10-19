@@ -1,4 +1,4 @@
-package prr.models;
+package prr.database;
 
 public abstract class AbstractModel {
     protected String _id;

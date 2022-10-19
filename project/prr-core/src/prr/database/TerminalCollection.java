@@ -1,6 +1,6 @@
 package prr.database;
 
-import prr.models.Terminal;
+import prr.terminals.Terminal;
 
 public class TerminalCollection extends AbstractCollection<Terminal> {
     public Terminal findByClient(String clientId) {

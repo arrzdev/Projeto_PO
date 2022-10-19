@@ -3,7 +3,7 @@ package prr.database;
 import java.util.Map;
 import java.util.TreeMap;
 
-import prr.models.AbstractModel;
+import prr.database.AbstractModel;
 
 public abstract class AbstractCollection<T extends AbstractModel> {
     private Map<String, T> _data = new TreeMap<String, T>();
