@@ -3,22 +3,28 @@ package prr.clients;
 import java.io.Serializable;
 
 import prr.database.AbstractModel;
+import prr.database.TerminalCollection;
 
 public class Client extends AbstractModel implements Serializable {
-    private String _name;
-    private String _nif;
+  private String name;
+  private String nif;
+  private TerminalCollection clientTerminals;
 
-    public Client(String id, String name, String nif) {
-        _id = id;
-        _name = name;
-        _nif = nif;
-    }
+  public Client(String _id, String _name, String _nif) {
+    this.id = _id;
+    this.name = _name;
+    this.nif = _nif;
+  }
 
-    public String getName() {
-        return _name;
-    }
+  public void addTerminal(Terminal terminal) {
+    this.clientTerminals.insert(terminal);
+  }
 
-    public String getNif() {
-        return _nif;
-    }
+  public String getName() {
+    return this.name;
+  }
+
+  public String getNif() {
+    return this.nif;
+  }
 }

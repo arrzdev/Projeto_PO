@@ -86,20 +86,20 @@ public class Network implements Serializable {
       String terminal_type = parsedCommand[0];
 
       String id = parsedCommand[1];
-      String client_id = parsedCommand[2];
-      String state = parsedCommand[3];
+      String clientId = parsedCommand[2];
+      String stateName = parsedCommand[3];
+
+      Client client = _database._clients.findById(clientId);
 
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters
       if (terminal_type == "BASIC") {
-        Terminal terminal = new Terminal(id, client_id, state);
+        Terminal terminal = new Terminal(id, client, state);
       } else {
-        Terminal terminal = new FancyTerminal(id, client_id, state);
+        Terminal terminal = new FancyTerminal(id, client, state);
       }
 
       _database._terminals.register(terminal);
-      _database._clients.findById(client_id).addTerminal(terminal);
-
     } catch (IOException e) {
       throw new UnrecognizedEntryException("Error while processing client");
     }

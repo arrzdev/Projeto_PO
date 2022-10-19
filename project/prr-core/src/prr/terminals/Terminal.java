@@ -12,19 +12,19 @@ abstract public class Terminal extends AbstractModel implements Serializable {
   /** Serial number for serialization. */
   private static final long serialVersionUID = 202208091753L;
 
-  private String _id;
-  private Client _client;
-  private terminalState _state;
+  private String id;
+  private Client client;
+  private terminalState state;
 
   // TODO: Receive terminal state (object or string)
-  public Terminal(String id, Client client, TerminalState state) {
-    _id = id;
-    _client = client;
-    _state = state;
+  public Terminal(String _id, Client _client, TerminalState _state) {
+    this.id = _id;
+    this.client = _client;
+    this.state = _state;
   }
 
   public Client getClient() {
-    return _client;
+    return this.client;
   }
 
   /**
