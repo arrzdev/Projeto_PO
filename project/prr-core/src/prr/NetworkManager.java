@@ -114,4 +114,6 @@ public class NetworkManager {
 		}
 	}
 
+	// TODO: create openFile() method
+
 }
