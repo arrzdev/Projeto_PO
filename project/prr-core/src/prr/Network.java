@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import prr.database.Database;
 import prr.exceptions.UnrecognizedEntryException;
+import prr.terminals.FancyTerminal;
+import prr.terminals.Terminal;
 
 // FIXME add more import if needed (cannot import from pt.tecnico or prr.app)
 
@@ -13,20 +15,92 @@ import prr.exceptions.UnrecognizedEntryException;
  */
 public class Network implements Serializable {
 
-	/** Serial number for serialization. */
-	private static final long serialVersionUID = 202208091753L;
+  /** Serial number for serialization. */
+  private static final long serialVersionUID = 202208091753L;
 
-	private Database _database = new Database();
+  private Database _database = newDataBase();
 
-	/**
-	 * Read text input file and create corresponding domain entities.
-	 * 
-	 * @param filename name of the text input file
-	 * @throws UnrecognizedEntryException if some entry is not correct
-	 * @throws IOException                if there is an IO erro while processing
-	 *                                    the text file
-	 */
-	void importFile(String filename) throws UnrecognizedEntryException, IOException /* FIXME maybe other exceptions */ {
-		// FIXME implement method
-	}
+  /**
+   * Read text input file and create corresponding domain entities.
+   * 
+   * @param filename name of the text input file
+   * @throws UnrecognizedEntryException if some entry is not correct
+   * @throws IOException                if there is an IO erro while processing
+   *                                    the text file
+   */
+  void importFile(String filename) throws UnrecognizedEntryException, IOException, FileNotFoundException {
+    // load file from system
+    try {
+      BufferedReader s = new BufferedReader(new FileReader(textFile));
+      String line;
+      while ((line = s.readLine()) != null) {
+        String[] parsedCommand = line.split("\\|");
+
+        String commandType = parsedCommand[0];
+        switch (commandType) {
+          case "CLIENT" -> processClient(parsedCommand);
+          case "BASIC" -> processBasicTerminal(parsedCommand);
+          case "FANCY" -> processFancyTerminal(parsedCommand);
+          case "FRIENDS" -> processFriends(parsedCommand);
+          default -> throw new UnrecognizedEntryException(String.join("|", fields));
+        }
+      }
+    } catch (FileNotFoundException e) {
+      throw new UnrecognizedEntryException("File not found");
+    }
+  }
+
+  /*
+   * Process a client entry.
+   * 
+   * @param fields fields of the entry
+   * 
+   * @throws UnrecognizedEntryException if the entry is not correct
+   */
+  private void processClient(String[] parsedCommand) throws IllegalEntryException {
+    if (parsedCommand.length != 3) {
+      throw new UnrecognizedEntryException("Invalid number of arguments");
+    }
+
+    try {
+      String id = parsedCommand[1];
+      String name = parsedCommand[2];
+      String nif = parsedCommand[3];
+
+      // TODO: ?? call a checker method on the id, name and nif
+      // TODO: throw exception in case of invalid parameters
+      Client client = new Client(id, name, nif);
+
+      _database._clients.register(client);
+    } catch (IOException e) {
+      throw new UnrecognizedEntryException("Error while processing client");
+    }
+  }
+
+  private void processTerminal(String[] parsedCommand) throws IllegalEntryException {
+    if (parsedCommand.length != 3) {
+      throw new UnrecognizedEntryException("Invalid number of arguments");
+    }
+
+    try {
+      String terminal_type = parsedCommand[0];
+
+      String id = parsedCommand[1];
+      String client_id = parsedCommand[2];
+      String state = parsedCommand[3];
+
+      // TODO: ?? call a checker method on the id, name and nif
+      // TODO: throw exception in case of invalid parameters
+      if (terminal_type == "BASIC") {
+        Terminal terminal = new Terminal(id, client_id, state);
+      } else {
+        Terminal terminal = new FancyTerminal(id, client_id, state);
+      }
+
+      _database._terminals.register(terminal);
+    } catch (IOException e) {
+      throw new UnrecognizedEntryException("Error while processing client");
+    }
+  }
+
 }
