@@ -70,8 +70,8 @@ public class Network implements Serializable {
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters
       Client client = new Client(id, name, nif);
+      _database._clients.insert(client);
 
-      _database._clients.register(client);
     } catch (IOException e) {
       throw new UnrecognizedEntryException("Error while processing client");
     }
@@ -98,6 +98,8 @@ public class Network implements Serializable {
       }
 
       _database._terminals.register(terminal);
+      _database._clients.findById(client_id).addTerminal(terminal);
+
     } catch (IOException e) {
       throw new UnrecognizedEntryException("Error while processing client");
     }
