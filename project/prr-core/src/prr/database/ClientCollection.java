@@ -3,10 +3,6 @@ package prr.database;
 import prr.models.Client;
 
 public class ClientCollection extends AbstractCollection<Client> {
-    public ClientCollection() {
-        super();
-    }
-
     public Client findByName(String name) {
         for (Client client : getData().values()) {
             if (client.getName().equals(name)) {
