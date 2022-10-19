@@ -4,20 +4,23 @@ import java.io.Serializable;
 
 import prr.clients.Client;
 import prr.database.AbstractModel;
+import prr.database.ClientCollection;
 
 abstract public class Terminal extends AbstractModel implements Serializable {
 
     /** Serial number for serialization. */
     private static final long serialVersionUID = 202208091753L;
 
-    private Client _client;
+    private String _clientId;
 
-    public Terminal(Client client) {
-        _client = client;
+    // TODO: Receive terminal state (object or string)
+    public Terminal(String id, String clientId) {
+        _clientId = clientId;
+        _id = id;
     }
 
-    public Client getClient() {
-        return _client;
+    public String getClientId() {
+        return _clientId;
     }
 
     /**
