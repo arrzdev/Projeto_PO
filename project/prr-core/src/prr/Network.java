@@ -1,13 +1,16 @@
 package prr;
 
 import java.io.Serializable;
-import java.io.IOException;
 
 import prr.database.Database;
+
+//import exceptions
+import java.io.IOException;
 import prr.exceptions.UnrecognizedEntryException;
+
 import prr.terminals.FancyTerminal;
 import prr.terminals.Terminal;
-
+import prr.terminals.TerminalState;
 // FIXME add more import if needed (cannot import from pt.tecnico or prr.app)
 
 /**
@@ -28,7 +31,7 @@ public class Network implements Serializable {
    * @throws IOException                if there is an IO erro while processing
    *                                    the text file
    */
-  void importFile(String filename) throws UnrecognizedEntryException, IOException, FileNotFoundException {
+  void importFile(String filename) throws UnrecognizedEntryException, IOException /* FIXME add exception */ {
     // load file from system
     try {
       BufferedReader s = new BufferedReader(new FileReader(textFile));
@@ -45,7 +48,7 @@ public class Network implements Serializable {
           default -> throw new UnrecognizedEntryException(String.join("|", fields));
         }
       }
-    } catch (FileNotFoundException e) {
+    } catch (UnrecognizedEntryException e) {
       throw new UnrecognizedEntryException("File not found");
     }
   }
@@ -57,7 +60,7 @@ public class Network implements Serializable {
    * 
    * @throws UnrecognizedEntryException if the entry is not correct
    */
-  private void processClient(String[] parsedCommand) throws IllegalEntryException {
+  private void processClient(String[] parsedCommand) throws UnrecognizedEntryException {
     if (parsedCommand.length != 3) {
       throw new UnrecognizedEntryException("Invalid number of arguments");
     }
@@ -77,7 +80,7 @@ public class Network implements Serializable {
     }
   }
 
-  private void processTerminal(String[] parsedCommand) throws IllegalEntryException {
+  private void processTerminal(String[] parsedCommand) throws UnrecognizedEntryException {
     if (parsedCommand.length != 3) {
       throw new UnrecognizedEntryException("Invalid number of arguments");
     }
@@ -87,10 +90,9 @@ public class Network implements Serializable {
 
       String id = parsedCommand[1];
       String clientId = parsedCommand[2];
-      String stateName = parsedCommand[3];
+      String terminalStateName = parsedCommand[3];
 
       Client client = _database._clients.findById(clientId);
-
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters
       if (terminal_type == "BASIC") {

@@ -1,7 +1,7 @@
-package prr.terminalState;
+package prr.terminals;
 
-public class OcupiedState implements terminalState {
-  private String state = "Ocupied";
+public class IdleState implements TerminalState {
+  private String state = "Wait";
   private String changeState = "Busy";
 
   public String getState() {

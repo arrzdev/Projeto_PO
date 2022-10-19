@@ -5,7 +5,6 @@ import java.io.Serializable;
 import prr.clients.Client;
 import prr.database.AbstractModel;
 import prr.database.ClientCollection;
-import prr.terminalState.terminalState;
 
 abstract public class Terminal extends AbstractModel implements Serializable {
 
@@ -14,7 +13,7 @@ abstract public class Terminal extends AbstractModel implements Serializable {
 
   private String id;
   private Client client;
-  private terminalState state;
+  private TerminalState state;
 
   // TODO: Receive terminal state (object or string)
   public Terminal(String _id, Client _client, TerminalState _state) {

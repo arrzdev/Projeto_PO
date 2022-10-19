@@ -2,6 +2,7 @@ package prr.clients;
 
 import java.io.Serializable;
 
+import prr.terminals.Terminal;
 import prr.database.AbstractModel;
 import prr.database.TerminalCollection;
 
