@@ -2,7 +2,9 @@ package prr.terminals;
 
 import javax.swing.plaf.metal.MetalBorders.TextFieldBorder;
 
-public class BusyState extends TerminalState {
+import java.io.Serializable;
+
+public class BusyState extends TerminalState implements Serializable {
   public BusyState(Terminal t) {
     super(t);
   }
@@ -22,5 +24,10 @@ public class BusyState extends TerminalState {
   @Override
   public boolean allowReceiveVideo() {
     return false;
+  }
+
+  @Override
+  public String toString() {
+    return "BUSY";
   }
 }

@@ -3,6 +3,7 @@ package prr.terminals;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import prr.communications.Communication;
 import prr.clients.Client;
 import prr.database.AbstractModel;
 import prr.database.ClientCollection;
@@ -17,6 +18,9 @@ public class Terminal extends AbstractModel implements Serializable {
   protected TerminalState _state = new IdleState(this);
 
   private ArrayList<String> _friends = new ArrayList<String>();
+
+  private ArrayList<Communication> _sentComms = new ArrayList<Communication>();
+  private ArrayList<Communication> _receivedComms = new ArrayList<Communication>();
 
   // TODO: Receive terminal state (object or string)
   public Terminal(String id, Client client) {
@@ -40,6 +44,10 @@ public class Terminal extends AbstractModel implements Serializable {
     _friends.remove(friendId);
   }
 
+  public int totalCommunicationsCount() {
+    return _sentComms.size() + _receivedComms.size();
+  }
+
   /**
    * Checks if this terminal can end the current interactive communication.
    *
@@ -57,6 +65,22 @@ public class Terminal extends AbstractModel implements Serializable {
    * @return true if this terminal is neither off neither busy, false otherwise.
    **/
   public boolean canStartCommunication() {
-    return false;
+    return true;
+  }
+
+  public String getTerminalType() {
+    return "BASIC";
+  }
+
+  @Override
+  public String toString() {
+    String friends = "";
+
+    if (_friends.size() != 0) {
+      friends = "|" + String.join(", ", _friends);
+    }
+
+    return String.format("%s|%s|%s|%s|0|0%s", getTerminalType(), getId(), getClient().getId(), _state.toString(),
+        friends);
   }
 }

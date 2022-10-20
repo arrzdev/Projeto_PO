@@ -15,7 +15,7 @@ public class Client extends AbstractModel implements Serializable {
   public Client(String id, String name, String nif) {
     _id = id;
     _name = name;
-    _nif = nif;
+    _nif = nif.replaceFirst("^0+(?!$)", "");
   }
 
   public void addTerminal(Terminal terminal) {

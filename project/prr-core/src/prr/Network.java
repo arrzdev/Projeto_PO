@@ -2,7 +2,8 @@ package prr;
 
 import java.io.Serializable;
 
-import prr.database.Database;
+import prr.database.ClientCollection;
+import prr.database.TerminalCollection;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -17,8 +18,6 @@ import prr.clients.Client;
 //terminals
 import prr.terminals.*;
 
-// FIXME add more import if needed (cannot import from pt.tecnico or prr.app)
-
 /**
  * Class Store implements a store.
  */
@@ -27,7 +26,8 @@ public class Network implements Serializable {
   /** Serial number for serialization. */
   private static final long serialVersionUID = 202208091753L;
 
-  private Database _database = new Database();
+  private ClientCollection _clients = new ClientCollection();
+  private TerminalCollection _terminals = new TerminalCollection();
 
   /*
    * public Network() {
@@ -39,8 +39,12 @@ public class Network implements Serializable {
    * }
    */
 
-  public Database getDB() {
-    return _database;
+  public ClientCollection getClientsCollection() {
+    return _clients;
+  }
+
+  public TerminalCollection getTerminalsCollection() {
+    return _terminals;
   }
 
   /**
@@ -93,7 +97,7 @@ public class Network implements Serializable {
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters
       Client client = new Client(id, name, nif);
-      _database.getClientsCollection().insert(client);
+      _clients.insert(client);
 
     } catch (Exception e) {
       throw new UnrecognizedEntryException("Error while processing client");
@@ -112,7 +116,7 @@ public class Network implements Serializable {
       String clientId = parsedCommand[2];
       String terminalStateName = parsedCommand[3];
 
-      Client client = _database.getClientsCollection().findById(clientId);
+      Client client = _clients.findById(clientId);
       TerminalState terminalState;
 
       // TODO: ?? call a checker method on the id, name and nif
@@ -136,7 +140,7 @@ public class Network implements Serializable {
       terminal.setTerminalState(terminalState);
 
       // insert terminal into db
-      _database.getTerminalsCollection().insert(terminal);
+      _terminals.insert(terminal);
 
     } catch (Exception e) {
       throw new UnrecognizedEntryException("Error while processing client");
@@ -154,7 +158,7 @@ public class Network implements Serializable {
 
       String[] parsedFriendsId = friendsId.split(",");
 
-      Terminal terminal = _database.getTerminalsCollection().findById(terminalId);
+      Terminal terminal = _terminals.findById(terminalId);
 
       for (String friendId : parsedFriendsId) {
         terminal.addFriend(friendId);

@@ -1,27 +1,31 @@
 package prr.database;
 
 import prr.clients.Client;
-
+import prr.exceptions.UnknownClientKeyException;
+import prr.exceptions.UnknownTerminalKeyException;
+import prr.exceptions.DuplicateClientKeyException;
 import java.io.Serializable;
 
-import prr.app.exceptions.DuplicateClientKeyException;
-
 public class ClientCollection extends AbstractCollection<Client> implements Serializable {
-  public void insert(String name, String nif) throws DuplicateClientKeyException {
-    int clientId = getNextId();
-
-    String id = String.format("cli%03d", clientId);
-
-    if (clientId > 999 || findById(id) != null) {
-      throw new DuplicateClientKeyException("Client key already exists");
+  public void insert(String id, String name, String nif) throws DuplicateClientKeyException {
+    // check if id is assigned
+    if (getData().get(id) != null) {
+      throw new DuplicateClientKeyException(id);
     }
 
     Client cli = new Client(id, name, nif);
     insert(cli);
   }
 
-  public int getNextId() {
-    return this.size() + 1;
+  // TODO: check exception thrown APP
+  public Client findById(String id) throws UnknownClientKeyException {
+    Client cli = getData().get(id);
+
+    if (cli == null) {
+      throw new UnknownClientKeyException(id);
+    }
+
+    return cli;
   }
 
   public Client findByName(String name) {

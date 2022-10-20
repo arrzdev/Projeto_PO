@@ -37,16 +37,13 @@ public class NetworkManager {
    *                                  an error while processing this file.
    */
   public void load(String filename) throws UnavailableFileException {
+    _filename = filename;
     try {
       ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filename)));
-
-      Network rendered = (Network) ois.readObject();
 
       _network = (Network) ois.readObject();
 
       ois.close();
-
-      _filename = filename;
     } catch (IOException | ClassNotFoundException e) {
       throw new UnavailableFileException(filename);
     }
@@ -106,7 +103,5 @@ public class NetworkManager {
       throw new ImportFileException(filename, e);
     }
   }
-
-  // TODO: create openFile() method
 
 }

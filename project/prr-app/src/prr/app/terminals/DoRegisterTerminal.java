@@ -23,18 +23,24 @@ class DoRegisterTerminal extends Command<Network> {
 
   @Override
   protected final void execute() throws CommandException {
-    String terminalType = stringField("terminal_type");
+    try {
+      String terminalType = stringField("terminal_type");
 
-    while (!(terminalType.equals("BASIC") || terminalType.equals("FANCY"))) {
-      terminalType = Form.requestString(Prompt.terminalType());
+      while (!(terminalType.equals("BASIC") || terminalType.equals("FANCY"))) {
+        terminalType = Form.requestString(Prompt.terminalType());
+      }
+
+      String clientId = Form.requestString(Prompt.clientKey());
+      String terminalId = stringField("terminal_id");
+
+      // TODO: fix implementation on frontend
+      Client client = _receiver.getClientsCollection().findById(clientId);
+
+      _receiver.getTerminalsCollection().insert(terminalId, terminalType, client);
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
+    } catch (prr.exceptions.DuplicateTerminalKeyException e) {
+      throw new DuplicateTerminalKeyException(e.getKey());
     }
-
-    String clientId = Form.requestString(Prompt.clientKey());
-    String terminalId = stringField("terminal_id");
-
-    // TODO: fix implementation on frontend
-    Client client = _receiver.getDB().getClientsCollection().findById(clientId);
-
-    _receiver.getDB().getTerminalsCollection().insert(terminalId, terminalType, client);
   }
 }

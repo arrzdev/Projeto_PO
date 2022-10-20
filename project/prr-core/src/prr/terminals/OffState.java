@@ -1,6 +1,8 @@
 package prr.terminals;
 
-public class OffState extends TerminalState {
+import java.io.Serializable;
+
+public class OffState extends TerminalState implements Serializable {
   public OffState(Terminal t) {
     super(t);
   }
@@ -24,5 +26,10 @@ public class OffState extends TerminalState {
   @Override
   public boolean allowSendVideo() {
     return false;
+  }
+
+  @Override
+  public String toString() {
+    return "OFF";
   }
 }

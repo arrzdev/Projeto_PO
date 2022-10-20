@@ -1,8 +1,5 @@
 package prr.exceptions;
 
-/**
- * 
- */
 public class UnavailableFileException extends Exception {
 
   /** Serial number for serialization. */

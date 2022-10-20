@@ -3,6 +3,7 @@
 right=0
 left=0
 
+export CLASSPATH=$(pwd)/po-uilib/po-uilib.jar:$(pwd)/prr-core/prr-core.jar:$(pwd)/prr-app/prr-app.jar
 for x in tests/*.in; do
     if [ -e ${x%.in}.import ]; then
         java -Dimport=${x%.in}.import -Din=$x -Dout=${x%.in}.outhyp prr.app.App;

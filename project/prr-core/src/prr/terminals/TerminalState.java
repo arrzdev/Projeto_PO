@@ -2,7 +2,9 @@ package prr.terminals;
 
 import javax.swing.AbstractAction;
 
-public abstract class TerminalState {
+import java.io.Serializable;
+
+public abstract class TerminalState implements Serializable {
   protected Terminal _terminal;
 
   public TerminalState(Terminal t) {

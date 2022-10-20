@@ -10,4 +10,9 @@ public class SilenceState extends TerminalState {
   public boolean allowReceiveVideo() {
     return false;
   }
+
+  @Override
+  public String toString() {
+    return "SILENCE";
+  }
 }

@@ -1,6 +1,7 @@
 package prr.app.clients;
 
-import prr.clients.Client;
+import javax.lang.model.element.UnknownAnnotationValueException;
+
 import prr.Network;
 import prr.app.exceptions.UnknownClientKeyException;
 import pt.tecnico.uilib.menus.Command;
@@ -18,13 +19,11 @@ class DoShowClient extends Command<Network> {
 
   @Override
   protected final void execute() throws CommandException {
-    Client client = _receiver.getDB().getClientsCollection().findById(stringField("client_id"));
-
-    if (client == null) {
-      throw new UnknownClientKeyException(stringField("client_id"));
+    try {
+      _display.addLine(_receiver.getClientsCollection().findById(stringField("client_id")));
+      _display.display();
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
     }
-
-    _display.addLine(client);
-    _display.display();
   }
 }

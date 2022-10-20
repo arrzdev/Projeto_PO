@@ -7,8 +7,10 @@ import prr.terminals.IdleState;
 import prr.clients.Client;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-import prr.app.exceptions.UnknownClientKeyException;
+import prr.exceptions.UnknownTerminalKeyException;
+import prr.exceptions.DuplicateTerminalKeyException;
 
 public class TerminalCollection extends AbstractCollection<Terminal> implements Serializable {
   public Terminal findByClient(String clientId) {
@@ -35,10 +37,9 @@ public class TerminalCollection extends AbstractCollection<Terminal> implements 
     client.addTerminal(terminal);
   }
 
-  public void insert(String terminalId, String terminalType, Client client) throws UnknownClientKeyException {
-
-    if (client == null) {
-      throw new UnknownClientKeyException("Client does not exist");
+  public void insert(String terminalId, String terminalType, Client client) throws DuplicateTerminalKeyException {
+    if (getData().get(terminalId) != null) {
+      throw new DuplicateTerminalKeyException(terminalId);
     }
 
     Terminal terminal;
@@ -51,5 +52,26 @@ public class TerminalCollection extends AbstractCollection<Terminal> implements 
     terminal.setTerminalState(new IdleState(terminal));
 
     insert(terminal);
+  }
+
+  public Terminal findById(String id) throws UnknownTerminalKeyException {
+    Terminal t = getData().get(id);
+
+    if (t == null) {
+      throw new UnknownTerminalKeyException(id);
+    }
+
+    return t;
+  }
+
+  public ArrayList<Terminal> findInactive() {
+    ArrayList<Terminal> inactive = new ArrayList<Terminal>();
+
+    for (Terminal t : getData().values()) {
+      if (t.totalCommunicationsCount() == 0)
+        inactive.add(t);
+    }
+
+    return inactive;
   }
 }
