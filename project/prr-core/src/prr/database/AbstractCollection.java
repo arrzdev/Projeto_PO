@@ -2,6 +2,7 @@ package prr.database;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.ArrayList;
 
 import prr.database.AbstractModel;
 
@@ -26,5 +27,19 @@ public abstract class AbstractCollection<T extends AbstractModel> {
 
   public void update(T item) {
     _data.put(item.getId(), item);
+  }
+
+  public int size() {
+    return _data.size();
+  }
+
+  public ArrayList<T> findAll() {
+    ArrayList<T> all = new ArrayList<T>();
+
+    for (T v : _data.values()) {
+      all.add(v);
+    }
+
+    return all;
   }
 }

@@ -4,13 +4,19 @@ import java.io.Serializable;
 
 import prr.database.Database;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 //import exceptions
 import java.io.IOException;
 import prr.exceptions.UnrecognizedEntryException;
 
-import prr.terminals.FancyTerminal;
-import prr.terminals.Terminal;
-import prr.terminals.TerminalState;
+//clients
+import prr.clients.Client;
+
+//terminals
+import prr.terminals.*;
+
 // FIXME add more import if needed (cannot import from pt.tecnico or prr.app)
 
 /**
@@ -21,7 +27,21 @@ public class Network implements Serializable {
   /** Serial number for serialization. */
   private static final long serialVersionUID = 202208091753L;
 
-  private Database _database = newDataBase();
+  private Database _database = new Database();
+
+  /*
+   * public Network() {
+   * Client cli1 = new Client("cli001", "Joao", "123456789");
+   * Client cli2 = new Client("cli002", "Andre", "123456788");
+   * 
+   * _database.getClientsCollection().insert(cli1);
+   * _database.getClientsCollection().insert(cli2);
+   * }
+   */
+
+  public Database getDB() {
+    return _database;
+  }
 
   /**
    * Read text input file and create corresponding domain entities.
@@ -34,20 +54,20 @@ public class Network implements Serializable {
   void importFile(String filename) throws UnrecognizedEntryException, IOException /* FIXME add exception */ {
     // load file from system
     try {
-      BufferedReader s = new BufferedReader(new FileReader(textFile));
+      BufferedReader s = new BufferedReader(new FileReader(filename));
+
       String line;
       while ((line = s.readLine()) != null) {
         String[] parsedCommand = line.split("\\|");
-
         String commandType = parsedCommand[0];
         switch (commandType) {
           case "CLIENT" -> processClient(parsedCommand);
-          case "BASIC" -> processBasicTerminal(parsedCommand);
-          case "FANCY" -> processFancyTerminal(parsedCommand);
+          case "BASIC", "FANCY" -> processTerminal(parsedCommand);
           case "FRIENDS" -> processFriends(parsedCommand);
-          default -> throw new UnrecognizedEntryException(String.join("|", fields));
+          default -> throw new UnrecognizedEntryException(String.join("|", parsedCommand));
         }
       }
+      s.close();
     } catch (UnrecognizedEntryException e) {
       throw new UnrecognizedEntryException("File not found");
     }
@@ -61,7 +81,7 @@ public class Network implements Serializable {
    * @throws UnrecognizedEntryException if the entry is not correct
    */
   private void processClient(String[] parsedCommand) throws UnrecognizedEntryException {
-    if (parsedCommand.length != 3) {
+    if (parsedCommand.length != 4) {
       throw new UnrecognizedEntryException("Invalid number of arguments");
     }
 
@@ -73,15 +93,15 @@ public class Network implements Serializable {
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters
       Client client = new Client(id, name, nif);
-      _database._clients.insert(client);
+      _database.getClientsCollection().insert(client);
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new UnrecognizedEntryException("Error while processing client");
     }
   }
 
   private void processTerminal(String[] parsedCommand) throws UnrecognizedEntryException {
-    if (parsedCommand.length != 3) {
+    if (parsedCommand.length != 4) {
       throw new UnrecognizedEntryException("Invalid number of arguments");
     }
 
@@ -92,19 +112,55 @@ public class Network implements Serializable {
       String clientId = parsedCommand[2];
       String terminalStateName = parsedCommand[3];
 
-      Client client = _database._clients.findById(clientId);
+      Client client = _database.getClientsCollection().findById(clientId);
+      TerminalState terminalState;
+
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters
-      if (terminal_type == "BASIC") {
-        Terminal terminal = new Terminal(id, client, state);
+      Terminal terminal;
+      if (terminal_type.equals("BASIC")) {
+        terminal = new Terminal(id, client);
       } else {
-        Terminal terminal = new FancyTerminal(id, client, state);
+        terminal = new FancyTerminal(id, client);
       }
 
-      _database._terminals.register(terminal);
-    } catch (IOException e) {
+      switch (terminalStateName) {
+        case "ON" -> terminalState = new IdleState(terminal);
+        case "OFF" -> terminalState = new OffState(terminal);
+        case "BUSY" -> terminalState = new BusyState(terminal);
+        case "SILENCE" -> terminalState = new SilenceState(terminal);
+        default -> throw new UnrecognizedEntryException("Invalid terminal state");
+      }
+
+      // set terminal state
+      terminal.setTerminalState(terminalState);
+
+      // insert terminal into db
+      _database.getTerminalsCollection().insert(terminal);
+
+    } catch (Exception e) {
       throw new UnrecognizedEntryException("Error while processing client");
     }
   }
 
+  private void processFriends(String[] parsedCommand) throws UnrecognizedEntryException {
+    if (parsedCommand.length != 3) {
+      throw new UnrecognizedEntryException("Invalid number of arguments");
+    }
+
+    try {
+      String terminalId = parsedCommand[1];
+      String friendsId = parsedCommand[2];
+
+      String[] parsedFriendsId = friendsId.split(",");
+
+      Terminal terminal = _database.getTerminalsCollection().findById(terminalId);
+
+      for (String friendId : parsedFriendsId) {
+        terminal.addFriend(friendId);
+      }
+    } catch (Exception e) {
+      throw new UnrecognizedEntryException("Error while processing terminal");
+    }
+  }
 }

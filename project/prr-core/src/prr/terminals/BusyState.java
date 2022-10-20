@@ -1,14 +1,26 @@
 package prr.terminals;
 
-public class BusyState implements TerminalState {
-  private String stateName = "BUSY";
-  private String changeState = "Busy";
+import javax.swing.plaf.metal.MetalBorders.TextFieldBorder;
 
-  public String getState() {
-    return state;
+public class BusyState extends TerminalState {
+  public BusyState(Terminal t) {
+    super(t);
   }
 
-  public String changeState() {
-    return changeState;
+  // Block sending of communications
+  @Override
+  public boolean allowSendText() {
+    return false;
+  }
+
+  @Override
+  public boolean allowSendVideo() {
+    return false;
+  }
+
+  // Block receiving of video communications
+  @Override
+  public boolean allowReceiveVideo() {
+    return false;
   }
 }

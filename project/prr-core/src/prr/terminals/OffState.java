@@ -1,14 +1,28 @@
 package prr.terminals;
 
-public class OffState implements terminalState {
-  private String state = "TurnedOff";
-  private String changeState = "Busy";
-
-  public String getState() {
-    return state;
+public class OffState extends TerminalState {
+  public OffState(Terminal t) {
+    super(t);
   }
 
-  public String changeState() {
-    return changeState;
+  // Block all communications
+  @Override
+  public boolean allowReceiveText() {
+    return false;
+  }
+
+  @Override
+  public boolean allowReceiveVideo() {
+    return false;
+  }
+
+  @Override
+  public boolean allowSendText() {
+    return false;
+  }
+
+  @Override
+  public boolean allowSendVideo() {
+    return false;
   }
 }
