@@ -16,7 +16,14 @@ import prr.exceptions.UnrecognizedEntryException;
 import prr.clients.Client;
 
 //terminals
-import prr.terminals.*;
+import prr.terminals.Terminal;
+import prr.terminals.BusyState;
+
+import prr.terminals.TerminalState;
+import prr.terminals.IdleState;
+import prr.terminals.SilenceState;
+import prr.terminals.FancyTerminal;
+import prr.terminals.OffState;
 
 /**
  * Class Store implements a store.
@@ -28,16 +35,6 @@ public class Network implements Serializable {
 
   private ClientCollection _clients = new ClientCollection();
   private TerminalCollection _terminals = new TerminalCollection();
-
-  /*
-   * public Network() {
-   * Client cli1 = new Client("cli001", "Joao", "123456789");
-   * Client cli2 = new Client("cli002", "Andre", "123456788");
-   * 
-   * _database.getClientsCollection().insert(cli1);
-   * _database.getClientsCollection().insert(cli2);
-   * }
-   */
 
   public ClientCollection getClientsCollection() {
     return _clients;
@@ -80,7 +77,7 @@ public class Network implements Serializable {
   /*
    * Process a client entry.
    * 
-   * @param fields fields of the entry
+   * @param parsedCommand fields of the entry
    * 
    * @throws UnrecognizedEntryException if the entry is not correct
    */
@@ -104,6 +101,13 @@ public class Network implements Serializable {
     }
   }
 
+  /*
+   * Process a terminal entry.
+   * 
+   * @param parsedCommand fields of the entry
+   * 
+   * @throws UnrecognizedEntryException if the entry is not correct
+   */
   private void processTerminal(String[] parsedCommand) throws UnrecognizedEntryException {
     if (parsedCommand.length != 4) {
       throw new UnrecognizedEntryException("Invalid number of arguments");
@@ -147,6 +151,13 @@ public class Network implements Serializable {
     }
   }
 
+  /*
+   * Process a friends entry.
+   * 
+   * @param parsedCommand fields of the entry
+   * 
+   * @throws UnrecognizedEntryException if the entry is not correct
+   */
   private void processFriends(String[] parsedCommand) throws UnrecognizedEntryException {
     if (parsedCommand.length != 3) {
       throw new UnrecognizedEntryException("Invalid number of arguments");

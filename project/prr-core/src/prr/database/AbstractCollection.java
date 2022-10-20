@@ -10,6 +10,9 @@ import prr.exceptions.UnknownTerminalKeyException;
 
 import java.io.Serializable;
 
+/**
+ * Abstract class serve to Collections
+ */
 public abstract class AbstractCollection<T extends AbstractModel> implements Serializable {
   private Map<String, T> _data = new TreeMap<String, T>();
 

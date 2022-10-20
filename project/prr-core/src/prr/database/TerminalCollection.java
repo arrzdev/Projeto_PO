@@ -38,6 +38,7 @@ public class TerminalCollection extends AbstractCollection<Terminal> implements 
   }
 
   public void insert(String terminalId, String terminalType, Client client) throws DuplicateTerminalKeyException {
+    // Check if Terminal exists in treeMap _data
     if (getData().get(terminalId) != null) {
       throw new DuplicateTerminalKeyException(terminalId);
     }

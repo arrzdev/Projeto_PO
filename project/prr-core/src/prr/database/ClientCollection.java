@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class ClientCollection extends AbstractCollection<Client> implements Serializable {
   public void insert(String id, String name, String nif) throws DuplicateClientKeyException {
-    // check if id is assigned
+    // Check if Client exists in treeMap _data
     if (getData().get(id) != null) {
       throw new DuplicateClientKeyException(id);
     }
