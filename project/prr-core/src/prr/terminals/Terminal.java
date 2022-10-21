@@ -16,6 +16,8 @@ public class Terminal extends AbstractModel implements Serializable {
   private Client _client;
 
   protected TerminalState _state = new IdleState(this);
+  private int _payments = 0;
+  private int _debts = 0;
 
   private ArrayList<String> _friends = new ArrayList<String>();
 

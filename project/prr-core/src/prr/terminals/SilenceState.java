@@ -1,6 +1,8 @@
 package prr.terminals;
 
-public class SilenceState extends TerminalState {
+import java.io.Serializable;
+
+public class SilenceState extends TerminalState implements Serializable {
   public SilenceState(Terminal t) {
     super(t);
   }

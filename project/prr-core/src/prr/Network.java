@@ -89,7 +89,7 @@ public class Network implements Serializable {
     try {
       String id = parsedCommand[1];
       String name = parsedCommand[2];
-      String nif = parsedCommand[3];
+      int nif = Integer.parseInt(parsedCommand[3]);
 
       // TODO: ?? call a checker method on the id, name and nif
       // TODO: throw exception in case of invalid parameters

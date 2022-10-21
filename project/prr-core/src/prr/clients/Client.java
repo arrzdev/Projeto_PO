@@ -9,13 +9,14 @@ import prr.database.TerminalCollection;
 
 public class Client extends AbstractModel implements Serializable {
   private String _name;
-  private String _nif;
+  private int _nif;
   private TreeMap<String, Terminal> terminals = new TreeMap<String, Terminal>();
 
-  public Client(String id, String name, String nif) {
+  public Client(String id, String name, int nif) {
     _id = id;
     _name = name;
-    _nif = nif.replaceFirst("^0+(?!$)", "");
+    // _nif = nif.replaceFirst("^0+(?!$)", "");
+    _nif = nif;
   }
 
   public void addTerminal(Terminal terminal) {
@@ -34,7 +35,7 @@ public class Client extends AbstractModel implements Serializable {
     return _name;
   }
 
-  public String getNif() {
+  public int getNif() {
     return _nif;
   }
 

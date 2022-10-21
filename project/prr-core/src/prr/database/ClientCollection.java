@@ -7,7 +7,7 @@ import prr.exceptions.DuplicateClientKeyException;
 import java.io.Serializable;
 
 public class ClientCollection extends AbstractCollection<Client> implements Serializable {
-  public void insert(String id, String name, String nif) throws DuplicateClientKeyException {
+  public void insert(String id, String name, int nif) throws DuplicateClientKeyException {
     // Check if Client exists in treeMap _data
     if (getData().get(id) != null) {
       throw new DuplicateClientKeyException(id);
@@ -38,9 +38,9 @@ public class ClientCollection extends AbstractCollection<Client> implements Seri
     return null;
   }
 
-  public Client findByNif(String nif) {
+  public Client findByNif(int nif) {
     for (Client client : getData().values()) {
-      if (client.getNif().equals(nif)) {
+      if (client.getNif() == nif) {
         return client;
       }
     }

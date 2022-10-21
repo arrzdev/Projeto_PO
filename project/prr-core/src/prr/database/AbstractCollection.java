@@ -3,6 +3,8 @@ package prr.database;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Collections;
 
 import prr.database.AbstractModel;
 import prr.exceptions.UnknownClientKeyException;
@@ -36,13 +38,15 @@ public abstract class AbstractCollection<T extends AbstractModel> implements Ser
     return _data.size();
   }
 
-  // TODO: implement sorted list when return
   public ArrayList<T> findAll() {
     ArrayList<T> all = new ArrayList<T>();
 
     for (T v : _data.values()) {
       all.add(v);
     }
+
+    // sort items based on id
+    all.sort(Comparator.comparing(T::getId, String.CASE_INSENSITIVE_ORDER));
 
     return all;
   }

@@ -22,7 +22,7 @@ class DoRegisterClient extends Command<Network> {
   protected final void execute() throws CommandException {
     try {
       String name = stringField("client_name");
-      String nif = stringField("client_nif");
+      int nif = Integer.parseInt(stringField("client_nif"));
       String id = stringField("client_id");
 
       _receiver.getClientsCollection().insert(id, name, nif);

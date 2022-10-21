@@ -3,13 +3,13 @@ package prr.database;
 import prr.terminals.Terminal;
 import prr.terminals.FancyTerminal;
 import prr.terminals.IdleState;
-
 import prr.clients.Client;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import prr.exceptions.UnknownTerminalKeyException;
+import prr.exceptions.InvalidTerminalKeyException;
 import prr.exceptions.DuplicateTerminalKeyException;
 
 public class TerminalCollection extends AbstractCollection<Terminal> implements Serializable {
@@ -37,7 +37,20 @@ public class TerminalCollection extends AbstractCollection<Terminal> implements 
     client.addTerminal(terminal);
   }
 
-  public void insert(String terminalId, String terminalType, Client client) throws DuplicateTerminalKeyException {
+  public void insert(String terminalId, String terminalType, Client client)
+      throws DuplicateTerminalKeyException, InvalidTerminalKeyException {
+
+    if (terminalId.length() != 6) {
+      throw new InvalidTerminalKeyException(terminalId);
+    }
+
+    // check if the string is parsable meaning its a number
+    try {
+      Integer.parseInt(terminalId);
+    } catch (NumberFormatException e) {
+      throw new prr.exceptions.InvalidTerminalKeyException(terminalId);
+    }
+
     // Check if Terminal exists in treeMap _data
     if (getData().get(terminalId) != null) {
       throw new DuplicateTerminalKeyException(terminalId);

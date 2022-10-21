@@ -33,14 +33,15 @@ class DoRegisterTerminal extends Command<Network> {
       String clientId = Form.requestString(Prompt.clientKey());
       String terminalId = stringField("terminal_id");
 
-      // TODO: fix implementation on frontend
       Client client = _receiver.getClientsCollection().findById(clientId);
 
       _receiver.getTerminalsCollection().insert(terminalId, terminalType, client);
-    } catch (prr.exceptions.UnknownClientKeyException e) {
-      throw new UnknownClientKeyException(e.getKey());
+    } catch (prr.exceptions.InvalidTerminalKeyException e) {
+      throw new InvalidTerminalKeyException(e.getKey());
     } catch (prr.exceptions.DuplicateTerminalKeyException e) {
       throw new DuplicateTerminalKeyException(e.getKey());
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
     }
   }
 }
