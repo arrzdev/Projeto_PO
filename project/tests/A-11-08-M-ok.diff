@@ -1,0 +1,13 @@
+*** tests/A-11-08-M-ok.out	2022-10-14 11:56:23.943879800 +0100
+--- tests/A-11-08-M-ok.outhyp	2022-10-31 15:15:02.336488500 +0000
+***************
+*** 19,24 ****
+--- 19,26 ----
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
++ 8 - Enviar comunicação de texto
++ 9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+  Escolha uma opção: GESTÃO DE TERMINAIS

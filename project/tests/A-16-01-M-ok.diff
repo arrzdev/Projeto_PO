@@ -1,0 +1,49 @@
+*** tests/A-16-01-M-ok.out	2022-10-24 18:18:29.611187500 +0100
+--- tests/A-16-01-M-ok.outhyp	2022-10-31 15:15:05.630119700 +0000
+***************
+*** 23,29 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Número do terminal: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 23,42 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+! 1 - Ligar
+! 2 - Colocar no silêncio
+! 3 - Desligar
+! 4 - Adicionar amigo
+! 5 - Retirar amigo
+! 6 - Pagamento
+! 7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+! 11 - Mostrar comunicação em curso
+! 0 - Sair
+! Escolha uma opção: Opção inválida!
+! OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+***************
+*** 40,46 ****
+  2 - Registar terminal
+  3 - Operações de terminal
+  0 - Sair
+! Escolha uma opção: BASIC|969001|cli001|IDLE|0|0|969006
+  BASIC|969003|cli001|OFF|0|0
+  BASIC|969006|cli002|IDLE|0|0
+  BASIC|969007|cli003|IDLE|0|0
+--- 53,59 ----
+  2 - Registar terminal
+  3 - Operações de terminal
+  0 - Sair
+! Escolha uma opção: BASIC|969001|cli001|IDLE|0|0
+  BASIC|969003|cli001|OFF|0|0
+  BASIC|969006|cli002|IDLE|0|0
+  BASIC|969007|cli003|IDLE|0|0

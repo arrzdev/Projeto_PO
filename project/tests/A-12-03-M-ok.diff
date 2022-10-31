@@ -1,0 +1,74 @@
+*** tests/A-12-03-M-ok.out	2022-10-14 17:14:01.981995000 +0100
+--- tests/A-12-03-M-ok.outhyp	2022-10-31 15:15:02.655982100 +0000
+***************
+*** 42,48 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Número do terminal: Tipo de comunicação a iniciar (VOICE, VIDEO): OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 42,48 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+***************
+*** 50,59 ****
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 10 - Terminar comunicação activa
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: VOICE|1|969004|969001|0|0|ONGOING
+  OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+--- 50,60 ----
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Opção inválida!
+  OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+***************
+*** 62,68 ****
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 10 - Terminar comunicação activa
+  11 - Mostrar comunicação em curso
+  0 - Sair
+  Escolha uma opção: GESTÃO DE TERMINAIS
+--- 63,83 ----
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+! 11 - Mostrar comunicação em curso
+! 0 - Sair
+! Escolha uma opção: Número inválido!
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+! 1 - Ligar
+! 2 - Colocar no silêncio
+! 3 - Desligar
+! 4 - Adicionar amigo
+! 5 - Retirar amigo
+! 6 - Pagamento
+! 7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+  Escolha uma opção: GESTÃO DE TERMINAIS

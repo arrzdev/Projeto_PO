@@ -1,0 +1,112 @@
+*** tests/A-14-02-M-ok.out	2022-10-21 12:17:06.367370500 +0100
+--- tests/A-14-02-M-ok.outhyp	2022-10-31 15:15:04.579520900 +0000
+***************
+*** 23,29 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Número do terminal: Tipo de comunicação a iniciar (VOICE, VIDEO): OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 23,29 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+***************
+*** 31,40 ****
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 10 - Terminar comunicação activa
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: VOICE|1|969001|969011|0|0|ONGOING
+  OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+--- 31,41 ----
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Opção inválida!
+  OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+***************
+*** 43,49 ****
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 10 - Terminar comunicação activa
+  11 - Mostrar comunicação em curso
+  0 - Sair
+  Escolha uma opção: GESTÃO DE TERMINAIS
+--- 44,64 ----
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+! 11 - Mostrar comunicação em curso
+! 0 - Sair
+! Escolha uma opção: Número inválido!
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+! 1 - Ligar
+! 2 - Colocar no silêncio
+! 3 - Desligar
+! 4 - Adicionar amigo
+! 5 - Retirar amigo
+! 6 - Pagamento
+! 7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+  Escolha uma opção: GESTÃO DE TERMINAIS
+***************
+*** 51,62 ****
+  2 - Registar terminal
+  3 - Operações de terminal
+  0 - Sair
+! Escolha uma opção: BASIC|969001|cli001|BUSY|0|0
+  BASIC|969003|cli001|OFF|0|0
+  BASIC|969006|cli002|IDLE|0|0
+  BASIC|969007|cli003|IDLE|0|0
+  BASIC|969008|cli003|SILENCE|0|0
+! FANCY|969011|cli001|BUSY|0|0
+  FANCY|969013|cli001|SILENCE|0|0
+  FANCY|969014|cli002|IDLE|0|0
+  FANCY|969015|cli003|IDLE|0|0
+--- 66,77 ----
+  2 - Registar terminal
+  3 - Operações de terminal
+  0 - Sair
+! Escolha uma opção: BASIC|969001|cli001|IDLE|0|0
+  BASIC|969003|cli001|OFF|0|0
+  BASIC|969006|cli002|IDLE|0|0
+  BASIC|969007|cli003|IDLE|0|0
+  BASIC|969008|cli003|SILENCE|0|0
+! FANCY|969011|cli001|IDLE|0|0
+  FANCY|969013|cli001|SILENCE|0|0
+  FANCY|969014|cli002|IDLE|0|0
+  FANCY|969015|cli003|IDLE|0|0
+***************
+*** 73,78 ****
+--- 88,95 ----
+  5 - Retirar amigo
+  6 - Pagamento
+  7 - Consultar saldo
++ 8 - Enviar comunicação de texto
++ 9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+  Escolha uma opção: GESTÃO DE TERMINAIS

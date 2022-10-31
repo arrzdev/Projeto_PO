@@ -1,0 +1,122 @@
+*** tests/A-15-01-M-ok.out	2022-10-24 12:00:01.262266100 +0100
+--- tests/A-15-01-M-ok.outhyp	2022-10-31 15:15:05.061447400 +0000
+***************
+*** 23,29 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Número do terminal: Mensagem de texto a enviar: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 23,55 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+! 1 - Ligar
+! 2 - Colocar no silêncio
+! 3 - Desligar
+! 4 - Adicionar amigo
+! 5 - Retirar amigo
+! 6 - Pagamento
+! 7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+! 11 - Mostrar comunicação em curso
+! 0 - Sair
+! Escolha uma opção: Opção inválida!
+! OPERAÇÕES DO TERMINAL
+! 1 - Ligar
+! 2 - Colocar no silêncio
+! 3 - Desligar
+! 4 - Adicionar amigo
+! 5 - Retirar amigo
+! 6 - Pagamento
+! 7 - Consultar saldo
+! 8 - Enviar comunicação de texto
+! 9 - Iniciar comunicação
+! 11 - Mostrar comunicação em curso
+! 0 - Sair
+! Escolha uma opção: Opção inválida!
+! OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+***************
+*** 57,64 ****
+  6 - Mostrar terminais sem actividade
+  7 - Mostrar terminais com saldo positivo
+  0 - Sair
+! Escolha uma opção: TEXT|1|969001|969006|10|10|FINISHED
+! CONSULTAS
+  1 - Mostrar todas as comunicações
+  2 - Mostrar comunicações feitas por um cliente
+  3 - Mostrar comunicações recebidas por um cliente
+--- 83,89 ----
+  6 - Mostrar terminais sem actividade
+  7 - Mostrar terminais com saldo positivo
+  0 - Sair
+! Escolha uma opção: CONSULTAS
+  1 - Mostrar todas as comunicações
+  2 - Mostrar comunicações feitas por um cliente
+  3 - Mostrar comunicações recebidas por um cliente
+***************
+*** 92,98 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Número do terminal: Mensagem de texto a enviar: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 117,123 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+***************
+*** 104,109 ****
+--- 129,148 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
++ Escolha uma opção: Opção inválida!
++ OPERAÇÕES DO TERMINAL
++ 1 - Ligar
++ 2 - Colocar no silêncio
++ 3 - Desligar
++ 4 - Adicionar amigo
++ 5 - Retirar amigo
++ 6 - Pagamento
++ 7 - Consultar saldo
++ 8 - Enviar comunicação de texto
++ 9 - Iniciar comunicação
++ 11 - Mostrar comunicação em curso
++ 0 - Sair
++ Escolha uma opção: Número inválido!
+  Escolha uma opção: GESTÃO DE TERMINAIS
+  1 - Mostrar todos os terminais
+  2 - Registar terminal
+***************
+*** 126,134 ****
+  6 - Mostrar terminais sem actividade
+  7 - Mostrar terminais com saldo positivo
+  0 - Sair
+! Escolha uma opção: TEXT|1|969001|969006|10|10|FINISHED
+! TEXT|2|969011|969001|49|10|FINISHED
+! CONSULTAS
+  1 - Mostrar todas as comunicações
+  2 - Mostrar comunicações feitas por um cliente
+  3 - Mostrar comunicações recebidas por um cliente
+--- 165,171 ----
+  6 - Mostrar terminais sem actividade
+  7 - Mostrar terminais com saldo positivo
+  0 - Sair
+! Escolha uma opção: CONSULTAS
+  1 - Mostrar todas as comunicações
+  2 - Mostrar comunicações feitas por um cliente
+  3 - Mostrar comunicações recebidas por um cliente

@@ -70,53 +70,93 @@ public class Network implements Serializable {
     return _clients.values();
   }
 
+  public boolean disableClientNotifications(String client_id) throws UnknownClientKeyException {
+    Client client = getClient(client_id);
+
+    if (client == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
+    if (!(client.getNotificationsStatus())) {
+      return false;
+    }
+
+    client.toggleNotifications();
+    return true;
+  }
+
+  public boolean enableClientNotifications(String client_id) throws UnknownClientKeyException {
+    Client client = getClient(client_id);
+
+    if (client == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
+    if (client.getNotificationsStatus()) {
+      return false;
+    }
+
+    client.toggleNotifications();
+    return true;
+  }
+
+  public long[] getClientPaymentsAndDebts(String client_id) throws UnknownClientKeyException {
+    Client client = getClient(client_id);
+
+    if (client == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
+    return [Math.round(client.), 2.2];
+  }
+
   // Terminal methods
 
-  public void registerTerminal(String terminalId, String terminalType, String clientId)
+  public void registerTerminal(String terminal_id, String terminal_type, String client_id)
       throws UnknownClientKeyException, DuplicateTerminalKeyException, InvalidTerminalKeyException {
 
-    if (terminalId.length() != 6) {
-      throw new InvalidTerminalKeyException(terminalId);
+    if (terminal_id.length() != 6) {
+      throw new InvalidTerminalKeyException(terminal_id);
     }
 
     // check if the string is parsable meaning its a number
-    // TOMAS - precisaram de fazer isto ou simplesmente definel terminalId como um
+    // TOMAS - precisaram de fazer isto ou simplesmente definel terminal_id como um
     // inteiro???? (se sim como é que depois sao feitos os catch?)
     try {
-      Integer.parseInt(terminalId);
+      Integer.parseInt(terminal_id);
     } catch (NumberFormatException e) {
-      throw new prr.exceptions.InvalidTerminalKeyException(terminalId);
+      throw new prr.exceptions.InvalidTerminalKeyException(terminal_id);
     }
 
     // Check if Terminal exists in treeMap
-    if (_terminals.get(terminalId) != null) { // FIX use .get or getTerminal??
-      throw new DuplicateTerminalKeyException(terminalId);
+    if (_terminals.get(terminal_id) != null) { // FIX use .get or getTerminal??
+      throw new DuplicateTerminalKeyException(terminal_id);
     }
 
     // TOMAS - o construtor do terminal recebe um cliente ou uma string de um
     // cliente (I would say its better to be a string but I am a pleb)??
-    Client client = getClient(clientId);
+    Client client = getClient(client_id);
 
     Terminal terminal;
-    if (terminalType.equals("BASIC")) {
-      terminal = new Terminal(terminalId, client);
+    if (terminal_type.equals("BASIC")) {
+      terminal = new Terminal(terminal_id, client);
     } else {
-      terminal = new FancyTerminal(terminalId, client);
+      terminal = new FancyTerminal(terminal_id, client);
     }
 
     // TOMAS - comom é que fizeram o terminal state?
     // insert the terminal into the treeMap
-    _terminals.put(terminalId, terminal);
+    _terminals.put(terminal_id, terminal);
 
     // insert the terminal into the client
     client.addTerminal(terminal);
   }
 
-  public Terminal getTerminal(String terminalId) throws UnknownTerminalKeyException {
-    Terminal terminal = _terminals.get(terminalId);
+  public Terminal getTerminal(String terminal_id) throws UnknownTerminalKeyException {
+    Terminal terminal = _terminals.get(terminal_id);
 
     if (terminal == null) {
-      throw new UnknownTerminalKeyException(terminalId);
+      throw new UnknownTerminalKeyException(terminal_id);
     }
 
     return terminal;
@@ -201,25 +241,28 @@ public class Network implements Serializable {
     }
 
     try {
-      String terminalType = parsedCommand[0];
+      String terminal_type = parsedCommand[0];
 
-      String terminalId = parsedCommand[1];
-      String clientId = parsedCommand[2];
+      String terminal_id = parsedCommand[1];
+      String client_id = parsedCommand[2];
       String terminalStateName = parsedCommand[3];
 
       // register the terminal into the treeMap
-      registerTerminal(terminalId, terminalType, clientId);
+      registerTerminal(terminal_id, terminal_type, client_id);
 
       // get it and change its state
-      Terminal terminal = getTerminal(terminalId);
+      Terminal terminal = getTerminal(terminal_id);
 
+      TerminalState terminalState;
       switch (terminalStateName) {
-        case "ON" -> terminal.setTerminalState(new IdleState(terminal));
-        case "OFF" -> terminal.setTerminalState(new OffState(terminal));
-        case "BUSY" -> terminal.setTerminalState(new BusyState(terminal));
-        case "SILENCE" -> terminal.setTerminalState(new SilenceState(terminal));
+        case "ON" -> terminalState = new IdleState(terminal);
+        case "OFF" -> terminalState = new OffState(terminal);
+        case "BUSY" -> terminalState = new BusyState(terminal);
+        case "SILENCE" -> terminalState = new SilenceState(terminal);
         default -> throw new UnrecognizedEntryException("Invalid terminal state");
       }
+
+      terminal.setTerminalState(terminalState);
 
     } catch (Exception e) { // Catch ?????
       throw new UnrecognizedEntryException("Error while processing client");
@@ -239,12 +282,12 @@ public class Network implements Serializable {
     }
 
     try {
-      String terminalId = parsedCommand[1];
+      String terminal_id = parsedCommand[1];
       String friendsId = parsedCommand[2];
 
       String[] parsedFriendsId = friendsId.split(",");
 
-      Terminal terminal = getTerminal(terminalId);
+      Terminal terminal = getTerminal(terminal_id);
 
       for (String friendId : parsedFriendsId) {
         terminal.addFriend(friendId);

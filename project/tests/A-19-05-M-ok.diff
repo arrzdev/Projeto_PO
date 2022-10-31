@@ -1,0 +1,20 @@
+*** tests/A-19-05-M-ok.out	2022-10-27 17:13:13.686132700 +0100
+--- tests/A-19-05-M-ok.outhyp	2022-10-31 15:15:09.078993400 +0000
+***************
+*** 37,44 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: O terminal já estava em silêncio.
+! OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 37,43 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar

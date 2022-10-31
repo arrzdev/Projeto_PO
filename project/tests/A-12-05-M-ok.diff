@@ -1,0 +1,58 @@
+*** tests/A-12-05-M-ok.out	2022-10-14 17:16:42.819178200 +0100
+--- tests/A-12-05-M-ok.outhyp	2022-10-31 15:15:02.856413000 +0000
+***************
+*** 23,30 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Número do terminal: Tipo de comunicação a iniciar (VOICE, VIDEO): O terminal de destino ('969008') está em silêncio.
+! OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+--- 23,29 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+***************
+*** 36,46 ****
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Não existe nenhuma comunicação em curso.
+  OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
+  4 - Adicionar amigo
+  5 - Retirar amigo
+  6 - Pagamento
+--- 35,58 ----
+  9 - Iniciar comunicação
+  11 - Mostrar comunicação em curso
+  0 - Sair
+! Escolha uma opção: Opção inválida!
+  OPERAÇÕES DO TERMINAL
+  1 - Ligar
+  2 - Colocar no silêncio
+  3 - Desligar
++ 4 - Adicionar amigo
++ 5 - Retirar amigo
++ 6 - Pagamento
++ 7 - Consultar saldo
++ 8 - Enviar comunicação de texto
++ 9 - Iniciar comunicação
++ 11 - Mostrar comunicação em curso
++ 0 - Sair
++ Escolha uma opção: Número inválido!
++ Escolha uma opção: OPERAÇÕES DO TERMINAL
++ 1 - Ligar
++ 2 - Colocar no silêncio
++ 3 - Desligar
+  4 - Adicionar amigo
+  5 - Retirar amigo
+  6 - Pagamento

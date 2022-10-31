@@ -1,9 +1,13 @@
 package prr.app.clients;
 
+import javax.sound.midi.Receiver;
+
 import prr.Network;
-import prr.app.exceptions.UnknownClientKeyException;
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
+
+import prr.app.exceptions.UnknownClientKeyException;
+
 //FIXME add more imports if needed
 
 /**
@@ -11,13 +15,22 @@ import pt.tecnico.uilib.menus.CommandException;
  */
 class DoDisableClientNotifications extends Command<Network> {
 
-	DoDisableClientNotifications(Network receiver) {
-		super(Label.DISABLE_CLIENT_NOTIFICATIONS, receiver);
-		//FIXME add command fields
-	}
+  DoDisableClientNotifications(Network receiver) {
+    super(Label.DISABLE_CLIENT_NOTIFICATIONS, receiver);
+    addStringField("client_id", Prompt.key());
+  }
 
-	@Override
-	protected final void execute() throws CommandException {
-    //FIXME implement command
-	}
+  @Override
+  protected final void execute() throws CommandException {
+    boolean changedNotifications;
+    try {
+      changedNotifications = _receiver.disableClientNotifications(stringField("client_id"));
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
+    }
+
+    if (changedNotifications) {
+      _display.popup(Message.clientNotificationsAlreadyEnabled());
+    }
+  }
 }

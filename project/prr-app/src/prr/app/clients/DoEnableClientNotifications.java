@@ -11,13 +11,22 @@ import pt.tecnico.uilib.menus.CommandException;
  */
 class DoEnableClientNotifications extends Command<Network> {
 
-	DoEnableClientNotifications(Network receiver) {
-		super(Label.ENABLE_CLIENT_NOTIFICATIONS, receiver);
-		//FIXME add command fields
-	}
+  DoEnableClientNotifications(Network receiver) {
+    super(Label.ENABLE_CLIENT_NOTIFICATIONS, receiver);
+    addStringField("client_id", Prompt.key());
+  }
 
-	@Override
-	protected final void execute() throws CommandException {
-                //FIXME implement command
-	}
+  @Override
+  protected final void execute() throws CommandException {
+    boolean changedNotifications;
+    try {
+      changedNotifications = _receiver.enableClientNotifications(stringField("client_id"));
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
+    }
+
+    if (changedNotifications) {
+      _display.popup(Message.clientNotificationsAlreadyEnabled());
+    }
+  }
 }

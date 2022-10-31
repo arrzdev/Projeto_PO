@@ -9,7 +9,9 @@ public class Client implements Serializable {
   private String _id;
   private String _name;
   private int _nif;
-  private TreeMap<String, Terminal> terminals = new TreeMap<String, Terminal>();
+  private boolean _notifications = true;
+
+  private TreeMap<String, Terminal> _terminals = new TreeMap<String, Terminal>();
 
   public Client(String id, String name, int nif) {
     _id = id;
@@ -19,15 +21,7 @@ public class Client implements Serializable {
   }
 
   public void addTerminal(Terminal terminal) {
-    terminals.put(terminal.getId(), terminal);
-  }
-
-  public void removeTerminal(Terminal terminal) {
-    removeTerminal(terminal.getId());
-  }
-
-  public void removeTerminal(String terminalId) {
-    terminals.remove(terminalId);
+    _terminals.put(terminal.getId(), terminal);
   }
 
   public String getId() {
@@ -46,8 +40,37 @@ public class Client implements Serializable {
     return terminals.size();
   }
 
+  public void toggleNotifications() {
+    // change notifications status between true and false
+    if (getNotificationsStatus()) {
+      _notifications = false;
+    } else {
+      _notifications = true;
+    }
+  }
+
+  public boolean getNotificationsStatus() {
+    return _notifications;
+  }
+
+  public long getClientPayments() {
+    long client_payments = 0;
+
+    for (Terminal t : _terminals.values()) {
+      /* 
+       JOAO FIQUEI NESTE TOPICO DO ENUNCIADO
+       Mostrar informação sobre pagamentos e dívidas de cliente
+       :)
+       */
+      client_payments += t.
+    }
+  }
+
   @Override
   public String toString() {
-    return String.format("CLIENT|%s|%s|%s|NORMAL|YES|%d|0|0", getId(), getName(), getNif(), getNumberOfTerminals());
+    String haveNotificationsEnabled = getNotificationsStatus() ? "YES" : "NO";
+
+    return String.format("CLIENT|%s|%s|%s|NORMAL|%s|%d|0|0", getId(), getName(), getNif(), haveNotificationsEnabled,
+        getNumberOfTerminals());
   }
 }
