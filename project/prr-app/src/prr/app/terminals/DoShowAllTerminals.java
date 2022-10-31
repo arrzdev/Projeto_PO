@@ -5,19 +5,22 @@ import java.util.Collections;
 import prr.Network;
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
-//FIXME add more imports if needed
+
+import java.util.ArrayList;
+import prr.terminals.Terminal;
 
 /**
  * Show all terminals.
  */
 class DoShowAllTerminals extends Command<Network> {
 
-	DoShowAllTerminals(Network receiver) {
-		super(Label.SHOW_ALL_TERMINALS, receiver);
-	}
+  DoShowAllTerminals(Network receiver) {
+    super(Label.SHOW_ALL_TERMINALS, receiver);
+  }
 
-	@Override
-	protected final void execute() throws CommandException {
-                //FIXME implement command
-	}
+  @Override
+  protected final void execute() throws CommandException {
+    _display.addAll(_receiver.getTerminals());
+    _display.display();
+  }
 }

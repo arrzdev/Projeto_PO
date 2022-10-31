@@ -1,40 +1,91 @@
 package prr.terminals;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-// FIXME add more import if needed (cannot import from pt.tecnico or prr.app)
+import prr.communications.Communication;
+import prr.clients.Client;
 
-/**
- * Abstract terminal.
- */
-abstract public class Terminal implements Serializable /* FIXME maybe addd more interfaces */ {
+public class Terminal implements Serializable {
 
-        /** Serial number for serialization. */
-        private static final long serialVersionUID = 202208091753L;
+  /** Serial number for serialization. */
+  private static final long serialVersionUID = 202208091753L;
 
-        // FIXME define attributes
-        // FIXME define contructor(s)
-        // FIXME define methods
+  private Client _client;
+  private TerminalState _state = new IdleState(this);
 
-        /**
-         * Checks if this terminal can end the current interactive communication.
-         *
-         * @return true if this terminal is busy (i.e., it has an active interactive
-         *         communication) and
-         *         it was the originator of this communication.
-         **/
-        public boolean canEndCurrentCommunication() {
-                // FIXME add implementation code
-                return false;
-        }
+  private String _id;
+  private int _payments = 0;
+  private int _debts = 0;
 
-        /**
-         * Checks if this terminal can start a new communication.
-         *
-         * @return true if this terminal is neither off neither busy, false otherwise.
-         **/
-        public boolean canStartCommunication() {
-                // FIXME add implementation code
-                return false;
-        }
+  private ArrayList<String> _friends = new ArrayList<String>();
+
+  private ArrayList<Communication> _sentComms = new ArrayList<Communication>();
+  private ArrayList<Communication> _receivedComms = new ArrayList<Communication>();
+
+  // TODO: Receive terminal state (object or string)
+  public Terminal(String id, Client client) {
+    _id = id;
+    _client = client;
+  }
+
+  public void setTerminalState(TerminalState state) {
+    _state = state;
+  }
+
+  public Client getClient() {
+    return _client;
+  }
+
+  public String getId() {
+    return _id;
+  }
+
+  public int getTotalCommunicationsCount() {
+    return _sentComms.size() + _receivedComms.size();
+  }
+
+  public void addFriend(String friendId) {
+    _friends.add(friendId);
+  }
+
+  public void removeFriend(String friendId) {
+    _friends.remove(friendId);
+  }
+
+  /**
+   * Checks if this terminal can end the current interactive communication.
+   *
+   * @return true if this terminal is busy (i.e., it has an active interactive
+   *         communication) and
+   *         it was the originator of this communication.
+   **/
+  public boolean canEndCurrentCommunication() {
+    return false;
+  }
+
+  /**
+   * Checks if this terminal can start a new communication.
+   *
+   * @return true if this terminal is neither off neither busy, false otherwise.
+   **/
+  public boolean canStartCommunication() {
+    return true;
+  }
+
+  public String getTerminalType() {
+    return "BASIC";
+  }
+
+  @Override
+  public String toString() {
+    String friends = "";
+
+    if (_friends.size() != 0) {
+      friends = "|" + String.join(", ", _friends);
+    }
+
+    return String.format("%s|%s|%s|%s|0|0%s", getTerminalType(), getId(), getClient().getId(), _state.toString(),
+        friends);
+  }
 }

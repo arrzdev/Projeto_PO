@@ -1,23 +1,29 @@
 package prr.app.clients;
 
+import javax.lang.model.element.UnknownAnnotationValueException;
+
 import prr.Network;
 import prr.app.exceptions.UnknownClientKeyException;
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
-//FIXME add more imports if needed
 
 /**
  * Show specific client: also show previous notifications.
  */
 class DoShowClient extends Command<Network> {
 
-	DoShowClient(Network receiver) {
-		super(Label.SHOW_CLIENT, receiver);
-		//FIXME add command fields
-	}
+  DoShowClient(Network receiver) {
+    super(Label.SHOW_CLIENT, receiver);
+    addStringField("client_id", Prompt.key());
+  }
 
-	@Override
-	protected final void execute() throws CommandException {
-                //FIXME implement command
-	}
+  @Override
+  protected final void execute() throws CommandException {
+    try {
+      _display.addLine(_receiver.getClient(stringField("client_id")));
+      _display.display();
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
+    }
+  }
 }
