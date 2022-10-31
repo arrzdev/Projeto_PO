@@ -22,7 +22,7 @@ class DoOpenMenuTerminalConsole extends Command<Network> {
   @Override
   protected final void execute() throws CommandException {
     try {
-      Terminal terminal = _receiver.getTerminalsCollection().findById(stringField("terminal_id"));
+      Terminal terminal = _receiver.getTerminal(stringField("terminal_id"));
       Menu menu = new Menu(_receiver, terminal);
       menu.open();
     } catch (prr.exceptions.UnknownTerminalKeyException e) {

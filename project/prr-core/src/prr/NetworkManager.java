@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+import prr.exceptions.DuplicateClientKeyException;
 import prr.exceptions.ImportFileException;
 import prr.exceptions.MissingFileAssociationException;
 import prr.exceptions.UnavailableFileException;
@@ -62,13 +63,17 @@ public class NetworkManager {
    *                                         to disk.
    */
   public void save() throws FileNotFoundException, MissingFileAssociationException, IOException {
-    if (_filename == null || _filename.isBlank()) {
+    if (_filename == null || _filename.isBlank()) { // TOMAS (isBlank??)
       throw new MissingFileAssociationException();
     }
 
-    ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(_filename)));
-    oos.writeObject(_network);
-    oos.close();
+    try {
+      ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(_filename)));
+      oos.writeObject(_network);
+      oos.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -99,7 +104,7 @@ public class NetworkManager {
   public void importFile(String filename) throws ImportFileException {
     try {
       _network.importFile(filename);
-    } catch (IOException | UnrecognizedEntryException /* FIXME maybe other exceptions */ e) {
+    } catch (IOException | UnrecognizedEntryException e) {
       throw new ImportFileException(filename, e);
     }
   }

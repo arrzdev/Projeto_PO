@@ -20,10 +20,13 @@ public abstract class TerminalState implements Serializable {
   }
 
   public boolean allowReceiveVideo() {
-    return _terminal instanceof FancyTerminal;
+    // TOMAS
+    return _terminal.getTerminalType() == "FANCY";
+    // return _terminal instanceof FancyTerminal;
   }
 
   public boolean allowSendVideo() {
-    return _terminal instanceof FancyTerminal;
+    return _terminal.getTerminalType() == "FANCY";
+    // return _terminal instanceof FancyTerminal;
   }
 }

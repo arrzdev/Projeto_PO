@@ -4,10 +4,9 @@ import java.io.Serializable;
 import java.util.TreeMap;
 
 import prr.terminals.Terminal;
-import prr.database.AbstractModel;
-import prr.database.TerminalCollection;
 
-public class Client extends AbstractModel implements Serializable {
+public class Client implements Serializable {
+  private String _id;
   private String _name;
   private int _nif;
   private TreeMap<String, Terminal> terminals = new TreeMap<String, Terminal>();
@@ -29,6 +28,10 @@ public class Client extends AbstractModel implements Serializable {
 
   public void removeTerminal(String terminalId) {
     terminals.remove(terminalId);
+  }
+
+  public String getId() {
+    return _id;
   }
 
   public String getName() {

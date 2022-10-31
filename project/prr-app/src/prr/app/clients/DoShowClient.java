@@ -20,7 +20,7 @@ class DoShowClient extends Command<Network> {
   @Override
   protected final void execute() throws CommandException {
     try {
-      _display.addLine(_receiver.getClientsCollection().findById(stringField("client_id")));
+      _display.addLine(_receiver.getClient(stringField("client_id")));
       _display.display();
     } catch (prr.exceptions.UnknownClientKeyException e) {
       throw new UnknownClientKeyException(e.getKey());

@@ -23,6 +23,7 @@ class DoRegisterTerminal extends Command<Network> {
 
   @Override
   protected final void execute() throws CommandException {
+    // TOMAS - CORE EXPOSED??
     try {
       String terminalType = stringField("terminal_type");
 
@@ -33,9 +34,7 @@ class DoRegisterTerminal extends Command<Network> {
       String clientId = Form.requestString(Prompt.clientKey());
       String terminalId = stringField("terminal_id");
 
-      Client client = _receiver.getClientsCollection().findById(clientId);
-
-      _receiver.getTerminalsCollection().insert(terminalId, terminalType, client);
+      _receiver.registerTerminal(terminalId, terminalType, clientId);
     } catch (prr.exceptions.InvalidTerminalKeyException e) {
       throw new InvalidTerminalKeyException(e.getKey());
     } catch (prr.exceptions.DuplicateTerminalKeyException e) {

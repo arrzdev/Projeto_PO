@@ -5,17 +5,16 @@ import java.util.ArrayList;
 
 import prr.communications.Communication;
 import prr.clients.Client;
-import prr.database.AbstractModel;
-import prr.database.ClientCollection;
 
-public class Terminal extends AbstractModel implements Serializable {
+public class Terminal implements Serializable {
 
   /** Serial number for serialization. */
   private static final long serialVersionUID = 202208091753L;
 
   private Client _client;
+  private TerminalState _state = new IdleState(this);
 
-  protected TerminalState _state = new IdleState(this);
+  private String _id;
   private int _payments = 0;
   private int _debts = 0;
 
@@ -38,16 +37,20 @@ public class Terminal extends AbstractModel implements Serializable {
     return _client;
   }
 
+  public String getId() {
+    return _id;
+  }
+
+  public int getTotalCommunicationsCount() {
+    return _sentComms.size() + _receivedComms.size();
+  }
+
   public void addFriend(String friendId) {
     _friends.add(friendId);
   }
 
   public void removeFriend(String friendId) {
     _friends.remove(friendId);
-  }
-
-  public int totalCommunicationsCount() {
-    return _sentComms.size() + _receivedComms.size();
   }
 
   /**
