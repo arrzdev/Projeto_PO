@@ -37,7 +37,7 @@ public class Client implements Serializable {
   }
 
   public int getNumberOfTerminals() {
-    return terminals.size();
+    return _terminals.size();
   }
 
   public void toggleNotifications() {
@@ -57,13 +57,20 @@ public class Client implements Serializable {
     long client_payments = 0;
 
     for (Terminal t : _terminals.values()) {
-      /* 
-       JOAO FIQUEI NESTE TOPICO DO ENUNCIADO
-       Mostrar informação sobre pagamentos e dívidas de cliente
-       :)
-       */
-      client_payments += t.
+      client_payments += t.getPayments();
     }
+
+    return client_payments;
+  }
+
+  public long getClientDebts() {
+    long client_debts = 0;
+
+    for (Terminal t : _terminals.values()) {
+      client_debts += t.getDebts();
+    }
+
+    return client_debts;
   }
 
   @Override

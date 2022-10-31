@@ -107,7 +107,10 @@ public class Network implements Serializable {
       throw new UnknownClientKeyException(client_id);
     }
 
-    return [Math.round(client.), 2.2];
+    long client_payments = Math.round(client.getClientPayments());
+    long client_debts = Math.round(client.getClientDebts());
+
+    return new long[] { client_payments, client_debts };
   }
 
   // Terminal methods
@@ -135,6 +138,8 @@ public class Network implements Serializable {
 
     // TOMAS - o construtor do terminal recebe um cliente ou uma string de um
     // cliente (I would say its better to be a string but I am a pleb)??
+    // JOAO - como espaco e performance nao importam é mais facil ja guardar o cliente
+    //   mas fica guardado como ponteiro ou é copia ? Depende se a variavel cliente esta atualizado ou nao
     Client client = getClient(client_id);
 
     Terminal terminal;

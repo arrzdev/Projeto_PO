@@ -18,6 +18,17 @@ class DoShowClientPaymentsAndDebts extends Command<Network> {
 
   @Override
   protected final void execute() throws CommandException {
-    _display.popup(Message.clientPaymentsAndDebts(stringField("client_id"), Math.round(), Math.random()));
+    try {
+      long[] paymentsAndDebts = _receiver.getClientPaymentsAndDebts(stringField("client_id"));
+      long client_payments = paymentsAndDebts[0];
+      long client_debts = paymentsAndDebts[1];
+
+      _display.popup(
+          Message.clientPaymentsAndDebts(stringField("client_id"), client_payments, client_debts));
+
+    } catch (prr.exceptions.UnknownClientKeyException e) {
+      throw new UnknownClientKeyException(e.getKey());
+    }
+
   }
 }

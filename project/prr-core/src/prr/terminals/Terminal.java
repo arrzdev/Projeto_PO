@@ -15,6 +15,8 @@ public class Terminal implements Serializable {
   private TerminalState _state = new IdleState(this);
 
   private String _id;
+
+  // TODO: check if it is int or long
   private int _payments = 0;
   private int _debts = 0;
 
@@ -41,11 +43,41 @@ public class Terminal implements Serializable {
     return _id;
   }
 
+  public long getPayments() {
+    return _payments;
+  }
+
+  public long getDebts() {
+    return _debts;
+  }
+
+  public void registerSentCoommunication(Communication comm) {
+    _sentComms.add(comm);
+  }
+
+  public ArrayList<Communication> getSentComms() {
+    return _sentComms;
+  }
+
+  public void registerReceivedCoommunication(Communication comm) {
+    _receivedComms.add(comm);
+  }
+
+  public ArrayList<Communication> getReceivedComms() {
+    return _receivedComms;
+  }
+
   public int getTotalCommunicationsCount() {
     return _sentComms.size() + _receivedComms.size();
   }
 
   public void addFriend(String friendId) {
+    // TODO: check if friend already was added
+
+    /*
+     * _friends.contain(friendId) throw exception
+     */
+
     _friends.add(friendId);
   }
 
