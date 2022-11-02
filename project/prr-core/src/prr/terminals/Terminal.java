@@ -81,6 +81,10 @@ public class Terminal implements Serializable {
     _friends.remove(friendId);
   }
 
+  public boolean isFriend(String friendId) {
+    return _friends.contains(friendId);
+  }
+
   /**
    * Checks if this terminal can end the current interactive communication.
    *
@@ -89,9 +93,8 @@ public class Terminal implements Serializable {
    *         it was the originator of this communication.
    **/
   public boolean canEndCurrentCommunication() {
-    // return _state instanceof BusyState &&
-    // _currentComm.getFrom().getId().equals(_id);
-    return true;
+    // return false;
+    return _currentComm != null && _state.equals("BUSY") && _currentComm.getSender().getId().equals(_id);
   }
 
   /**
@@ -100,21 +103,11 @@ public class Terminal implements Serializable {
    * @return true if this terminal is neither off neither busy, false otherwise.
    **/
   public boolean canStartCommunication() {
-    // return _state instanceof IdleState || _state instanceof OnState;
-    return false;
+    return !(_state.equals("OFF") || _state.equals("BUSY"));
   }
 
   public void endCurrentCommunication() {
-    if (_currentComm.getReceiver().getId().equals(_id)) {
-      _currentComm = null;
-      setTerminalState(new IdleState(this));
-    }
 
-    else if (canEndCurrentCommunication()) {
-      _currentComm.end();
-      _currentComm = null;
-      setTerminalState(new IdleState(this));
-    }
   }
 
   public String getTerminalType() {

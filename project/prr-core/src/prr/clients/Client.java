@@ -7,6 +7,8 @@ import java.util.TreeMap;
 
 import prr.communications.Communication;
 import prr.terminals.Terminal;
+import prr.payments.PaymentPlan;
+import prr.payments.NormalPaymentPlan;
 
 public class Client implements Serializable {
   private String _id;
@@ -15,12 +17,17 @@ public class Client implements Serializable {
   private boolean _notifications = true;
 
   private TreeMap<String, Terminal> _terminals = new TreeMap<String, Terminal>();
+  private PaymentPlan _paymentPlan = new NormalPaymentPlan(this);
 
   public Client(String id, String name, int nif) {
     _id = id;
     _name = name;
     // _nif = nif.replaceFirst("^0+(?!$)", "");
     _nif = nif;
+  }
+
+  public void setPaymentPlan(PaymentPlan paymentPlan) {
+    _paymentPlan = paymentPlan;
   }
 
   public void addTerminal(Terminal terminal) {
@@ -63,7 +70,7 @@ public class Client implements Serializable {
       client_payments += t.getPayments();
     }
 
-    return client_payments;
+    return Math.round(client_payments);
   }
 
   public long getClientDebts() {
@@ -73,7 +80,11 @@ public class Client implements Serializable {
       client_debts += t.getDebts();
     }
 
-    return client_debts;
+    return Math.round(client_debts);
+  }
+
+  public int getBalance() {
+    return (int) (getClientPayments()) - (int) getClientDebts();
   }
 
   public ArrayList<Communication> getSentCommunications() {
@@ -102,9 +113,9 @@ public class Client implements Serializable {
 
   @Override
   public String toString() {
-    String haveNotificationsEnabled = getNotificationsStatus() ? "YES" : "NO";
+    String hasNotificationsEnabled = getNotificationsStatus() ? "YES" : "NO";
 
-    return String.format("CLIENT|%s|%s|%s|NORMAL|%s|%d|0|0", getId(), getName(), getNif(), haveNotificationsEnabled,
+    return String.format("CLIENT|%s|%s|%s|NORMAL|%s|%d|0|0", getId(), getName(), getNif(), hasNotificationsEnabled,
         getNumberOfTerminals());
   }
 }

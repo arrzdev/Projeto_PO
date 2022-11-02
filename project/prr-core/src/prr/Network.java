@@ -109,14 +109,11 @@ public class Network implements Serializable {
       throw new UnknownClientKeyException(client_id);
     }
 
-    long client_payments = Math.round(client.getClientPayments());
-    long client_debts = Math.round(client.getClientDebts());
-
-    return new long[] { client_payments, client_debts };
+    return new long[] { client.getClientDebts(), client.getClientPayments() };
   }
 
-  public Collection<Client> getClients(boolean debt) {
-    return _clients.values().stream().filter(c -> debt ? c.getClientDebts() > 0 : c.getClientDebts() == 0)
+  public Collection<Client> showClients(boolean withDebt) {
+    return _clients.values().stream().filter(c -> withDebt ? c.getClientDebts() > 0 : c.getClientDebts() == 0)
         .collect(Collectors.toList());
   }
 
@@ -196,11 +193,23 @@ public class Network implements Serializable {
     return _communications.values();
   }
 
-  public ArrayList<Communication> showCommunicationSent(Client c) {
-    return c.getSentCommunications();
+  public ArrayList<Communication> showCommunicationSent(String client_id) throws UnknownClientKeyException {
+    Client client = _clients.get(client_id);
+
+    if (client == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
+    return client.getSentCommunications();
   }
 
-  public ArrayList<Communication> showCommunicationReceived(Client c) {
+  public ArrayList<Communication> showCommunicationReceived(String client_id) throws UnknownClientKeyException {
+    Client c = _clients.get(client_id);
+
+    if (c == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
     return c.getReceivedCommunications();
   }
 
