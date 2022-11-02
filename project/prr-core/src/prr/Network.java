@@ -115,8 +115,12 @@ public class Network implements Serializable {
     return new long[] { client_payments, client_debts };
   }
 
-  // Terminal methods
+  public Collection<Client> getClients(boolean debt) {
+    return _clients.values().stream().filter(c -> debt ? c.getClientDebts() > 0 : c.getClientDebts() == 0)
+        .collect(Collectors.toList());
+  }
 
+  // Terminal methods
   public void registerTerminal(String terminal_id, String terminal_type, String client_id)
       throws UnknownClientKeyException, DuplicateTerminalKeyException, InvalidTerminalKeyException {
 
@@ -179,6 +183,25 @@ public class Network implements Serializable {
     Predicate<Terminal> filterPredicate = terminal -> terminal.getTotalCommunicationsCount() == 0;
 
     return _terminals.values().stream().filter(filterPredicate).collect(Collectors.toList());
+  }
+
+  public Collection<Terminal> getTerminalsWithPositiveBalance() {
+    Predicate<Terminal> filterPredicate = terminal -> terminal.getPayments() - terminal.getDebts() > 0;
+
+    return _terminals.values().stream().filter(filterPredicate).collect(Collectors.toList());
+  }
+
+  // Communication methods
+  public Collection<Communication> showAllCommunications() {
+    return _communications.values();
+  }
+
+  public ArrayList<Communication> showCommunicationSent(Client c) {
+    return c.getCommunicationsSent();
+  }
+
+  public ArrayList<Communication> showCommunicationReceived(Client c) {
+    return c.getCommunicationsReceived();
   }
 
   /*
@@ -306,8 +329,4 @@ public class Network implements Serializable {
     }
   }
 
-  // Communication methods
-  public Collection<Communication> showAllCommunications() {
-    return _communications.values();
-  }
 }

@@ -1,8 +1,11 @@
 package prr.clients;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.TreeMap;
 
+import prr.communications.Communication;
 import prr.terminals.Terminal;
 
 public class Client implements Serializable {
@@ -71,6 +74,30 @@ public class Client implements Serializable {
     }
 
     return client_debts;
+  }
+
+  public ArrayList<Communication> getSentCommunications() {
+    ArrayList<Communication> comms = new ArrayList<Communication>();
+
+    for (Terminal t : _terminals.values()) {
+      comms.addAll(t.getSentComms());
+    }
+
+    comms.sort(Comparator.comparing(Communication::getId));
+
+    return comms;
+  }
+
+  public ArrayList<Communication> getReceivedCommunications() {
+    ArrayList<Communication> comms = new ArrayList<Communication>();
+
+    for (Terminal t : _terminals.values()) {
+      comms.addAll(t.getReceivedComms());
+    }
+
+    comms.sort(Comparator.comparing(Communication::getId));
+
+    return comms;
   }
 
   @Override
