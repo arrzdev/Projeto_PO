@@ -2,6 +2,8 @@ package prr.communications;
 
 import java.io.Serializable;
 
+import prr.terminals.Terminal;
+
 public class TextCommunication extends Communication implements Serializable {
     private String _message;
 

@@ -7,11 +7,11 @@ public class OngoingCommunicationState extends CommunicationState implements Ser
         super(com);
     }
 
-    public bool isOnGoing() {
+    public boolean isOnGoing() {
         return true;
     }
 
-    public bool isFinished() {
+    public boolean isFinished() {
         return false;
     }
 

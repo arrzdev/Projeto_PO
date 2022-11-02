@@ -6,6 +6,7 @@ import java.io.FileReader;
 
 //structures
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.TreeMap;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import prr.exceptions.InvalidTerminalKeyException;
 
 //clients
 import prr.clients.Client;
-
+import prr.communications.Communication;
 //terminals
 import prr.terminals.Terminal;
 import prr.terminals.BusyState;
@@ -45,6 +46,7 @@ public class Network implements Serializable {
 
   private TreeMap<String, Client> _clients = new TreeMap<String, Client>(String.CASE_INSENSITIVE_ORDER);
   private TreeMap<String, Terminal> _terminals = new TreeMap<String, Terminal>(String.CASE_INSENSITIVE_ORDER);
+  private TreeMap<Integer, Communication> _communications = new TreeMap<Integer, Communication>();
 
   // Client methods
   public void registerClient(String id, String name, int nif) throws DuplicateClientKeyException {
@@ -138,8 +140,10 @@ public class Network implements Serializable {
 
     // TOMAS - o construtor do terminal recebe um cliente ou uma string de um
     // cliente (I would say its better to be a string but I am a pleb)??
-    // JOAO - como espaco e performance nao importam é mais facil ja guardar o cliente
-    //   mas fica guardado como ponteiro ou é copia ? Depende se a variavel cliente esta atualizado ou nao
+    // JOAO - como espaco e performance nao importam é mais facil ja guardar o
+    // cliente
+    // mas fica guardado como ponteiro ou é copia ? Depende se a variavel cliente
+    // esta atualizado ou nao
     Client client = getClient(client_id);
 
     Terminal terminal;
@@ -300,5 +304,10 @@ public class Network implements Serializable {
     } catch (Exception e) {
       throw new UnrecognizedEntryException("Error while processing terminal");
     }
+  }
+
+  // Communication methods
+  public Collection<Communication> showAllCommunications() {
+    return _communications.values();
   }
 }

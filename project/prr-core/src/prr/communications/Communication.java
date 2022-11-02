@@ -6,6 +6,7 @@ import prr.terminals.Terminal;
 
 public abstract class Communication implements Serializable {
     // TODO: communication id not implemented
+    private int _id;
 
     private Terminal _sender;
     private Terminal _receiver;
@@ -29,11 +30,11 @@ public abstract class Communication implements Serializable {
         return _receiver;
     }
 
-    public bool isOnGoing() {
+    public boolean isOnGoing() {
         return _state.isOnGoing();
     }
 
-    public bool isFinished() {
+    public boolean isFinished() {
         return _state.isFinished();
     }
 
@@ -42,10 +43,13 @@ public abstract class Communication implements Serializable {
         _receiver.endCurrentCommunication();
     }
 
+    public int getId() {
+        return _id;
+    }
+
     abstract public String getType();
 
-    @Override
-    public String receiverString() {
+    public String toString() {
         return String.format("%s|idCommunication|%s|%s|units|price|%s", getType(), _sender.getId(), _receiver.getId(),
                 _state);
     }

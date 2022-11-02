@@ -7,11 +7,11 @@ public class FinishedCommunicationState extends CommunicationState implements Se
         super(com);
     }
 
-    public bool isOnGoing() {
+    public boolean isOnGoing() {
         return false;
     }
 
-    public bool isFinished() {
+    public boolean isFinished() {
         return true;
     }
 

@@ -89,7 +89,9 @@ public class Terminal implements Serializable {
    *         it was the originator of this communication.
    **/
   public boolean canEndCurrentCommunication() {
-    return _state instanceof BusyState && _currentComm.getFrom().getId().equals(_id);
+    // return _state instanceof BusyState &&
+    // _currentComm.getFrom().getId().equals(_id);
+    return true;
   }
 
   /**
@@ -98,7 +100,8 @@ public class Terminal implements Serializable {
    * @return true if this terminal is neither off neither busy, false otherwise.
    **/
   public boolean canStartCommunication() {
-    return _state instanceof IdleState || _state instanceof OnState;
+    // return _state instanceof IdleState || _state instanceof OnState;
+    return false;
   }
 
   public void endCurrentCommunication() {
