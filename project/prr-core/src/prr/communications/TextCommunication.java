@@ -14,7 +14,7 @@ public class TextCommunication extends Communication implements Serializable {
         return _message;
     }
 
-    public String type() {
+    public String getType() {
         return "TEXT";
     }
 

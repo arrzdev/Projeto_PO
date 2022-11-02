@@ -24,6 +24,7 @@ public class Terminal implements Serializable {
 
   private ArrayList<Communication> _sentComms = new ArrayList<Communication>();
   private ArrayList<Communication> _receivedComms = new ArrayList<Communication>();
+  private Communication _currentComm;
 
   // TODO: Receive terminal state (object or string)
   public Terminal(String id, Client client) {
@@ -72,13 +73,8 @@ public class Terminal implements Serializable {
   }
 
   public void addFriend(String friendId) {
-    // TODO: check if friend already was added
-
-    /*
-     * _friends.contain(friendId) throw exception
-     */
-
-    _friends.add(friendId);
+    if (!_friends.contains(friendId))
+      _friends.add(friendId);
   }
 
   public void removeFriend(String friendId) {
@@ -93,7 +89,7 @@ public class Terminal implements Serializable {
    *         it was the originator of this communication.
    **/
   public boolean canEndCurrentCommunication() {
-    return false;
+    return _state instanceof BusyState && _currentComm.getFrom().getId().equals(_id);
   }
 
   /**
@@ -102,7 +98,20 @@ public class Terminal implements Serializable {
    * @return true if this terminal is neither off neither busy, false otherwise.
    **/
   public boolean canStartCommunication() {
-    return true;
+    return _state instanceof IdleState || _state instanceof OnState;
+  }
+
+  public void endCurrentCommunication() {
+    if (_currentComm.getReceiver().getId().equals(_id)) {
+      _currentComm = null;
+      setTerminalState(new IdleState(this));
+    }
+
+    else if (canEndCurrentCommunication()) {
+      _currentComm.end();
+      _currentComm = null;
+      setTerminalState(new IdleState(this));
+    }
   }
 
   public String getTerminalType() {

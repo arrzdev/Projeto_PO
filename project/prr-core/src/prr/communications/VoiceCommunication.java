@@ -13,7 +13,7 @@ public class VoiceCommunication extends Communication implements Serializable {
         return _message;
     }
 
-    public String type() {
+    public String getType() {
         return "VOICE";
     }
 

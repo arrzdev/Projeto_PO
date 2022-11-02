@@ -13,7 +13,7 @@ public class VideoCommunication extends Communication implements Serializable {
         return _message;
     }
 
-    public String type() {
+    public String getType() {
         return "VIDEO";
     }
 

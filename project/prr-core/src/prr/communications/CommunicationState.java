@@ -2,27 +2,18 @@ package prr.communications;
 
 import java.io.Serializable;
 
-public class CommunicationState implements Serializable {
-    private String _state; // "ONGOING" or "FINISHED"
+public abstract class CommunicationState implements Serializable {
+    protected Communication _communication;
 
-    public CommunicationState() {
-        _state = "ONGOING";
+    public CommunicationState(Communication com) {
+        _communication = com;
     }
 
     public void end() {
-        _state = "FINISHED";
+        _communication.setCommunicationState(new FinishedCommunicationState(_communication));
     }
 
-    public boolean isOnGoing() {
-        return _state.equals("ONGOING");
-    }
+    public abstract boolean isOnGoing();
 
-    public boolean isFinished() {
-        return isOnGoing() ? false : true;
-    }
-
-    @Override
-    public String toString() {
-        return _state;
-    }
+    public abstract boolean isFinished();
 }
