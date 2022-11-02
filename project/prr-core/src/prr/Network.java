@@ -197,11 +197,11 @@ public class Network implements Serializable {
   }
 
   public ArrayList<Communication> showCommunicationSent(Client c) {
-    return c.getCommunicationsSent();
+    return c.getSentCommunications();
   }
 
   public ArrayList<Communication> showCommunicationReceived(Client c) {
-    return c.getCommunicationsReceived();
+    return c.getReceivedCommunications();
   }
 
   /*
