@@ -4,7 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import prr.notifications.CustomNotification;
+import prr.notifications.AppNotification;
+
 import prr.communications.Communication;
+import prr.communications.FinishedCommunicationState;
 import prr.communications.TextCommunication;
 import prr.communications.VoiceCommunication;
 
@@ -19,10 +23,10 @@ public class Terminal implements Serializable {
 
   private Client _client;
   private TerminalState _state = new IdleState(this);
+  private TerminalState _oldState;
 
   private String _id;
 
-  // TODO: check if it is int or long
   private double _payments = 0;
   private double _debts = 0;
 
@@ -32,10 +36,24 @@ public class Terminal implements Serializable {
   private ArrayList<Communication> _receivedComms = new ArrayList<Communication>();
   private Communication _currentComm;
 
+  private ArrayList<CustomNotification> _pendingNotifications = new ArrayList<CustomNotification>();
+
   // TODO: Receive terminal state (object or string)
   public Terminal(String id, Client client) {
     _id = id;
     _client = client;
+  }
+
+  public void pushNotification(CustomNotification notification) {
+    _pendingNotifications.add(notification);
+  }
+
+  public void resetNotification() {
+    _pendingNotifications = new ArrayList<CustomNotification>();
+  }
+
+  public ArrayList<CustomNotification> getNotifications() {
+    return _pendingNotifications;
   }
 
   public void setTerminalState(TerminalState state) {
@@ -44,6 +62,14 @@ public class Terminal implements Serializable {
 
   public TerminalState getTerminalState() {
     return _state;
+  }
+
+  public void setOldTerminalState(TerminalState state) {
+    _oldState = state;
+  }
+
+  public TerminalState getOldTerminalState() {
+    return _oldState;
   }
 
   public Communication getCurrentCommunication() {
@@ -72,9 +98,9 @@ public class Terminal implements Serializable {
 
   public double pay(Communication communication) {
     double cost = communication.getCost();
-    communication.setPaid();
     _debts -= cost;
     _payments += cost;
+    communication.setPaid();
 
     _client.getPaymentPlan().update();
 
@@ -157,7 +183,8 @@ public class Terminal implements Serializable {
    **/
   public boolean canEndCurrentCommunication() {
     // return false;
-    return _currentComm != null && _state.toString().equals("BUSY") && _currentComm.getSender().getId().equals(_id);
+    // TODO: change .toString() blablabla
+    return _state.toString().equals("BUSY") && _currentComm.getSender().getId().equals(_id);
   }
 
   /**
@@ -188,11 +215,15 @@ public class Terminal implements Serializable {
 
     _currentComm = voiceCom;
 
+    setOldTerminalState(getTerminalState());
+
     setTerminalState(new BusyState(this));
 
     registerSentCoommunication(voiceCom);
 
     receiver.setCurrentCommunication(_currentComm);
+
+    receiver.setOldTerminalState(receiver.getTerminalState());
 
     receiver.setTerminalState(new BusyState(receiver));
 
@@ -205,15 +236,18 @@ public class Terminal implements Serializable {
     VoiceCommunication currentVoiceComm = (VoiceCommunication) _currentComm;
 
     currentVoiceComm.setDuration(duration);
+    currentVoiceComm.setCommunicationState(new FinishedCommunicationState(currentVoiceComm));
 
     Terminal receiver = currentVoiceComm.getReceiver();
     receiver.setCurrentCommunication(null);
-    receiver.setTerminalState(new IdleState(receiver));
+    receiver.setTerminalState(receiver.getOldTerminalState());
+    receiver.setOldTerminalState(null);
 
     setCurrentCommunication(null);
-    setTerminalState(new IdleState(this));
+    setTerminalState(getOldTerminalState());
+    setOldTerminalState(null);
 
-    double cost = addDebt(_currentComm);
+    double cost = addDebt(currentVoiceComm);
 
     currentVoiceComm.setCost(cost);
 
@@ -232,7 +266,7 @@ public class Terminal implements Serializable {
     if (_friends.size() != 0)
       friends = "|" + String.join(", ", _friends.keySet());
 
-    return String.format("%s|%s|%s|%s|%x|%x%s", getTerminalType(), getId(), getClient().getId(),
+    return String.format("%s|%s|%s|%s|%d|%d%s", getTerminalType(), getId(), getClient().getId(),
         _state.toString(), Math.round(_payments), Math.round(_debts),
         friends);
   }

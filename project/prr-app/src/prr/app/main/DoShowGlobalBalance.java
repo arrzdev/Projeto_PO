@@ -3,7 +3,6 @@ package prr.app.main;
 import prr.Network;
 import pt.tecnico.uilib.menus.Command;
 import pt.tecnico.uilib.menus.CommandException;
-//FIXME add more imports if needed
 
 /**
  * Show global balance.
@@ -16,6 +15,7 @@ class DoShowGlobalBalance extends Command<Network> {
 
 	@Override
 	protected final void execute() throws CommandException {
-                //FIXME implement command
+		_display.popup(Message.globalPaymentsAndDebts(_receiver.getGlobalPayments(),
+				_receiver.getGlobalDebts()));
 	}
 }

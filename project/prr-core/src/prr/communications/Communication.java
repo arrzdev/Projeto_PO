@@ -5,8 +5,9 @@ import java.io.Serializable;
 import prr.terminals.Terminal;
 import prr.payments.PaymentPlan;
 
+import java.lang.Math;
+
 public abstract class Communication implements Serializable {
-  // TODO: communication id not implemented
   private int _id;
 
   private Terminal _sender;
@@ -74,8 +75,8 @@ public abstract class Communication implements Serializable {
   abstract public int getUnits();
 
   public String toString() {
-    return String.format("%s|%d|%s|%s|%d|%f|%s", getType(), _id, _sender.getId(), _receiver.getId(), getUnits(),
-        _cost,
+    return String.format("%s|%d|%s|%s|%d|%d|%s", getType(), _id, _sender.getId(), _receiver.getId(), getUnits(),
+        Math.round(_cost),
         _state);
   }
 }

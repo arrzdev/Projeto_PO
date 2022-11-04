@@ -32,13 +32,14 @@ public abstract class PaymentPlan implements Serializable {
   public abstract void update();
 
   public double cost(Communication com) {
+    double total = 0;
     switch (com.getType()) {
-      case "TEXT" -> cost((TextCommunication) com);
-      case "VOICE" -> cost((VoiceCommunication) com);
-      case "VIDEO" -> cost((VideoCommunication) com);
+      case "TEXT" -> total = cost((TextCommunication) com);
+      case "VOICE" -> total = cost((VoiceCommunication) com);
+      case "VIDEO" -> total = cost((VideoCommunication) com);
     }
 
-    return 0;
+    return total;
   }
 
   public abstract double cost(TextCommunication com);

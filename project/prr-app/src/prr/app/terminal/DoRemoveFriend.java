@@ -5,7 +5,6 @@ import prr.terminals.Terminal;
 import pt.tecnico.uilib.menus.CommandException;
 
 import prr.app.exceptions.UnknownTerminalKeyException;
-//FIXME add more imports if needed
 
 /**
  * Remove friend.

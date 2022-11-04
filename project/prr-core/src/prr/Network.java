@@ -6,10 +6,12 @@ import java.io.FileReader;
 
 //structures
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.TreeMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import java.lang.Math;
@@ -42,7 +44,7 @@ import prr.exceptions.DestinationIsSilentException;
 
 import prr.exceptions.UnsupportedAtDestinationException;
 import prr.exceptions.UnsupportedAtOriginException;
-
+import prr.notifications.CustomNotification;
 import prr.exceptions.InvalidCommunicationException;
 
 //clients
@@ -101,7 +103,7 @@ public class Network implements Serializable {
     return client;
   }
 
-  public Collection<Client> showAllClients() {
+  public Collection<Client> getAllClients() {
     return _clients.values();
   }
 
@@ -155,9 +157,18 @@ public class Network implements Serializable {
     return Math.round(client.getClientDebts());
   }
 
-  public Collection<Client> showClientsWithAndWithoutDebts(boolean withDebt) {
-    return _clients.values().stream().filter(c -> withDebt ? c.getClientDebts() > 0 : c.getClientDebts() == 0)
-        .collect(Collectors.toList());
+  public ArrayList<Client> getClientsWithAndWithoutDebts(boolean withDebt) {
+    // ordenar de forma descendente pelas dividas e desempate crescente pelas keys
+    // do cliente
+
+    Collection<Client> clients = _clients.values().stream()
+        .filter(c -> withDebt ? c.getClientDebts() > 0 : c.getClientDebts() == 0).collect(Collectors.toList());
+
+    ArrayList<Client> clientsArr = new ArrayList<Client>(clients);
+
+    clientsArr.sort(Comparator.comparing(Client::getClientDebts).reversed().thenComparing(Client::getId));
+
+    return clientsArr;
   }
 
   // Terminal methods
@@ -215,17 +226,17 @@ public class Network implements Serializable {
     return terminal;
   }
 
-  public Collection<Terminal> showAllTerminals() {
+  public Collection<Terminal> getAllTerminals() {
     return _terminals.values();
   }
 
-  public Collection<Terminal> showUnusedTerminals() {
+  public Collection<Terminal> getUnusedTerminals() {
     Predicate<Terminal> filterPredicate = terminal -> terminal.getTotalCommunicationsCount() == 0;
 
     return _terminals.values().stream().filter(filterPredicate).collect(Collectors.toList());
   }
 
-  public Collection<Terminal> showTerminalsWithPositiveBalance() {
+  public Collection<Terminal> getTerminalsWithPositiveBalance() {
     Predicate<Terminal> filterPredicate = terminal -> terminal.getPayments() - terminal.getDebts() > 0;
 
     return _terminals.values().stream().filter(filterPredicate).collect(Collectors.toList());
@@ -249,7 +260,6 @@ public class Network implements Serializable {
     Terminal terminalFriend = getTerminal(friend_id);
 
     // add friend to each other
-    terminalFriend.addFriend(terminal);
     terminal.addFriend(terminalFriend);
   }
 
@@ -294,18 +304,9 @@ public class Network implements Serializable {
     Communication terminalCurrentCommunication = terminal.getCurrentCommunication();
     Communication communication = getCommunication(communication_id);
 
-    if (!communication.getSender().getId().equals(terminal.getId()) || terminalCurrentCommunication != null) {
+    if (!communication.getSender().getId().equals(terminal.getId()) || !communication.isFinished()) {
       throw new BadPaymentException();
     }
-
-    terminal.pay(communication);
-  }
-
-  public void payCommunication(Terminal terminal, int communication_id) throws InvalidCommunicationException {
-    Communication communication = _communications.get(communication_id);
-
-    if (!communication.isFinished() || communication.isPaid())
-      throw new InvalidCommunicationException();
 
     terminal.pay(communication);
   }
@@ -313,11 +314,11 @@ public class Network implements Serializable {
   // TODO: check if client have enabled notifications
 
   // Communication methods
-  public Collection<Communication> showAllCommunications() {
+  public Collection<Communication> getAllCommunications() {
     return _communications.values();
   }
 
-  public ArrayList<Communication> showCommunicationsFromClient(String client_id) throws UnknownClientKeyException {
+  public ArrayList<Communication> getCommunicationsFromClient(String client_id) throws UnknownClientKeyException {
     Client client = _clients.get(client_id);
 
     if (client == null) {
@@ -327,7 +328,7 @@ public class Network implements Serializable {
     return client.getSentCommunications();
   }
 
-  public ArrayList<Communication> showCommunicationsToClient(String client_id) throws UnknownClientKeyException {
+  public ArrayList<Communication> getCommunicationsToClient(String client_id) throws UnknownClientKeyException {
     Client c = _clients.get(client_id);
 
     if (c == null) {
@@ -348,7 +349,7 @@ public class Network implements Serializable {
 
   // TODO: create exception
   // TODO: check if communication is null
-  public Communication showCurrentCommunication(Terminal terminal) throws NoCommunicationException {
+  public Communication getCurrentCommunication(Terminal terminal) throws NoCommunicationException {
     Communication currentCommunication = terminal.getCurrentCommunication();
 
     if (currentCommunication == null)
@@ -387,6 +388,8 @@ public class Network implements Serializable {
 
     TextCommunication textComm = sender.sendTextCommunication(communication_id, receiver, message);
 
+    _communications.put(textComm.getId(), textComm);
+
     return textComm;
   }
 
@@ -409,6 +412,8 @@ public class Network implements Serializable {
 
     VoiceCommunication voiceComm = sender.startVoiceCommunication(communication_id, receiver);
 
+    _communications.put(voiceComm.getId(), voiceComm);
+
     return voiceComm;
   }
 
@@ -428,8 +433,9 @@ public class Network implements Serializable {
     if (receiver.getTerminalType().equals("BASIC"))
       throw new UnsupportedAtDestinationException();
 
-    if (receiver.getTerminalState().toString().equals("OFF"))
+    if (receiver.getTerminalState().toString().equals("OFF")) {
       throw new DestinationIsOffException();
+    }
 
     if (receiver.getTerminalState().toString().equals("BUSY") || sender.getId().equals(receiver_id))
       throw new DestinationIsBusyException();
@@ -443,6 +449,8 @@ public class Network implements Serializable {
 
     VideoCommunication videoComm = fancySender.startVideoCommunication(communication_id, (FancyTerminal) receiver);
 
+    _communications.put(videoComm.getId(), videoComm);
+
     return videoComm;
   }
 
@@ -450,6 +458,24 @@ public class Network implements Serializable {
     FancyTerminal fancySender = (FancyTerminal) sender;
 
     return fancySender.endCurrentVideoCommunication(duration);
+  }
+
+  public long getGlobalPayments() {
+    long total = 0;
+    for (Client client : getAllClients()) {
+      total += client.getClientPayments();
+    }
+
+    return total;
+  }
+
+  public long getGlobalDebts() {
+    long total = 0;
+    for (Client client : getAllClients()) {
+      total += client.getClientDebts();
+    }
+
+    return total;
   }
 
   // TODO: a verificação se já foi pago fica no network

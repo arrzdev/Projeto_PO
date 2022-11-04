@@ -4,7 +4,6 @@ import prr.Network;
 import prr.terminals.Terminal;
 import pt.tecnico.uilib.forms.Form;
 import pt.tecnico.uilib.menus.CommandException;
-//FIXME add more imports if needed
 
 /**
  * Command for ending communication.
@@ -18,7 +17,6 @@ class DoEndInteractiveCommunication extends TerminalCommand {
 
   @Override
   protected final void execute() throws CommandException {
-    long cost = _network.endInteraciveCommunication(_receiver, integerField("duration"));
-    Message.communicationCost(cost);
+    _display.popup(Message.communicationCost(_network.endInteraciveCommunication(_receiver, integerField("duration"))));
   }
 }

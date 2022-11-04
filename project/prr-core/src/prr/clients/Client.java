@@ -115,16 +115,6 @@ public class Client implements Serializable {
     return comms;
   }
 
-  public void pay(Communication communication) {
-    Terminal terminal = communication.getSender();
-    terminal.pay(communication);
-  }
-
-  public void addDebt(Communication communication) {
-    Terminal terminal = communication.getSender();
-    terminal.addDebt(communication);
-  }
-
   @Override
   public String toString() {
     String hasNotificationsEnabled = getNotificationsStatus() ? "YES" : "NO";

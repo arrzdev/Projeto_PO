@@ -8,8 +8,6 @@ import pt.tecnico.uilib.menus.CommandException;
 
 import prr.app.exceptions.UnknownClientKeyException;
 
-//FIXME add more imports if needed
-
 /**
  * Disable client notifications.
  */

@@ -1,7 +1,7 @@
 package prr.terminals;
 
 import prr.clients.Client;
-
+import prr.communications.FinishedCommunicationState;
 import prr.communications.VideoCommunication;
 
 import java.io.Serializable;
@@ -16,11 +16,15 @@ public class FancyTerminal extends Terminal implements Serializable {
 
     setCurrentCommunication(videoCom);
 
+    setOldTerminalState(getTerminalState());
+
     setTerminalState(new BusyState(this));
 
     registerSentCoommunication(videoCom);
 
     receiver.setCurrentCommunication(videoCom);
+
+    receiver.setOldTerminalState(receiver.getTerminalState());
 
     receiver.setTerminalState(new BusyState(receiver));
 
@@ -33,20 +37,22 @@ public class FancyTerminal extends Terminal implements Serializable {
     VideoCommunication currentVideoComm = (VideoCommunication) getCurrentCommunication();
 
     currentVideoComm.setDuration(duration);
+    currentVideoComm.setCommunicationState(new FinishedCommunicationState(currentVideoComm));
 
     Terminal receiver = currentVideoComm.getReceiver();
     receiver.setCurrentCommunication(null);
-    receiver.setTerminalState(new IdleState(receiver));
+    receiver.setTerminalState(receiver.getOldTerminalState());
+    receiver.setOldTerminalState(null);
 
     setCurrentCommunication(null);
-    setTerminalState(new IdleState(this));
+    setTerminalState(getOldTerminalState());
+    setOldTerminalState(null);
 
     double cost = addDebt(currentVideoComm);
 
     currentVideoComm.setCost(cost);
 
     return cost;
-
   }
 
   @Override

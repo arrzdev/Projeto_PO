@@ -11,6 +11,7 @@ public class TextCommunication extends Communication implements Serializable {
   public TextCommunication(int id, Terminal from, Terminal to, String message) {
     super(id, from, to);
     _message = message;
+    setCommunicationState(new FinishedCommunicationState(this));
   }
 
   public String getMessage() {
