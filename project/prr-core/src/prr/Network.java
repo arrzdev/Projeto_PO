@@ -44,7 +44,7 @@ import prr.exceptions.DestinationIsSilentException;
 
 import prr.exceptions.UnsupportedAtDestinationException;
 import prr.exceptions.UnsupportedAtOriginException;
-import prr.notifications.CustomNotification;
+import prr.notifications.ClientNotification;
 import prr.exceptions.InvalidCommunicationException;
 
 //clients
@@ -63,8 +63,6 @@ import prr.terminals.IdleState;
 import prr.terminals.SilenceState;
 import prr.terminals.FancyTerminal;
 import prr.terminals.OffState;
-
-//TODO: Change show... to get... etc etc...
 
 //communications
 import prr.communications.TextCommunication;
@@ -85,7 +83,7 @@ public class Network implements Serializable {
 
   // Client methods
   public void registerClient(String id, String name, int nif) throws DuplicateClientKeyException {
-    if (_clients.get(id) != null) { // FIX use .get or getClient??
+    if (_clients.get(id) != null) {
       throw new DuplicateClientKeyException(id);
     }
 
@@ -115,11 +113,11 @@ public class Network implements Serializable {
       throw new UnknownClientKeyException(client_id);
     }
 
-    if (!(client.getNotificationsStatus())) {
+    if (!(client.canReceiveNotifications())) {
       throw new ClientNotificationsAlreadyDisabledException();
     }
 
-    client.toggleNotifications();
+    client.toggleReceiveNotifications();
   }
 
   public void enableClientNotifications(String client_id)
@@ -130,11 +128,11 @@ public class Network implements Serializable {
       throw new UnknownClientKeyException(client_id);
     }
 
-    if (client.getNotificationsStatus()) {
+    if (client.canReceiveNotifications()) {
       throw new ClientNotificationsAlreadyEnabledException();
     }
 
-    client.toggleNotifications();
+    client.toggleReceiveNotifications();
   }
 
   public long getClientPayments(String client_id) throws UnknownClientKeyException {
@@ -144,7 +142,7 @@ public class Network implements Serializable {
       throw new UnknownClientKeyException(client_id);
     }
 
-    return Math.round(client.getClientPayments());
+    return Math.round(client.getPayments());
   }
 
   public long getClientDebts(String client_id) throws UnknownClientKeyException {
@@ -154,21 +152,32 @@ public class Network implements Serializable {
       throw new UnknownClientKeyException(client_id);
     }
 
-    return Math.round(client.getClientDebts());
+    return Math.round(client.getDebts());
   }
 
   public ArrayList<Client> getClientsWithAndWithoutDebts(boolean withDebt) {
-    // ordenar de forma descendente pelas dividas e desempate crescente pelas keys
-    // do cliente
-
     Collection<Client> clients = _clients.values().stream()
-        .filter(c -> withDebt ? c.getClientDebts() > 0 : c.getClientDebts() == 0).collect(Collectors.toList());
+        .filter(client -> withDebt ? client.getDebts() > 0 : client.getDebts() == 0).collect(Collectors.toList());
 
     ArrayList<Client> clientsArr = new ArrayList<Client>(clients);
 
-    clientsArr.sort(Comparator.comparing(Client::getClientDebts).reversed().thenComparing(Client::getId));
-
+    clientsArr.sort(Comparator.comparing(Client::getDebts).reversed().thenComparing(Client::getId));
     return clientsArr;
+  }
+
+  public ArrayList<String> getClientNotifications(String client_id) throws UnknownClientKeyException {
+    Client client = getClient(client_id);
+
+    if (client == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
+    ArrayList<String> notifications = new ArrayList<String>();
+    for (ClientNotification cn : client.getNotifications()) {
+      notifications.add(cn.toString());
+    }
+
+    return notifications;
   }
 
   // Terminal methods
@@ -179,9 +188,6 @@ public class Network implements Serializable {
       throw new InvalidTerminalKeyException(terminal_id);
     }
 
-    // check if the string is parsable meaning its a number
-    // TOMAS - precisaram de fazer isto ou simplesmente definel terminal_id como um
-    // inteiro???? (se sim como é que depois sao feitos os catch?)
     try {
       Integer.parseInt(terminal_id);
     } catch (NumberFormatException e) {
@@ -189,16 +195,10 @@ public class Network implements Serializable {
     }
 
     // Check if Terminal exists in treeMap
-    if (_terminals.get(terminal_id) != null) { // FIX use .get or getTerminal??
+    if (_terminals.get(terminal_id) != null) {
       throw new DuplicateTerminalKeyException(terminal_id);
     }
 
-    // TOMAS - o construtor do terminal recebe um cliente ou uma string de um
-    // cliente (I would say its better to be a string but I am a pleb)??
-    // JOAO - como espaco e performance nao importam é mais facil ja guardar o
-    // cliente
-    // mas fica guardado como ponteiro ou é copia ? Depende se a variavel cliente
-    // esta atualizado ou nao
     Client client = getClient(client_id);
 
     Terminal terminal;
@@ -208,7 +208,6 @@ public class Network implements Serializable {
       terminal = new FancyTerminal(terminal_id, client);
     }
 
-    // TOMAS - comom é que fizeram o terminal state?
     // insert the terminal into the treeMap
     _terminals.put(terminal_id, terminal);
 
@@ -270,48 +269,34 @@ public class Network implements Serializable {
     Terminal terminalFriend = getTerminal(friend_id);
 
     // add friend to each other
-    terminalFriend.removeFriend(terminal);
     terminal.removeFriend(terminalFriend);
   }
 
-  public void turnOnTerminal(Terminal terminal) throws TerminalAlreadyOnException {
-    if (terminal.getTerminalState().toString().equals("IDLE"))
-      throw new TerminalAlreadyOnException();
+  // Modify Terminal States
 
-    // TODO: check if setTerminalState or setIdleState (need to create this method)
-    terminal.setTerminalState(new IdleState(terminal));
+  public void turnOnTerminal(Terminal terminal) throws TerminalAlreadyOnException {
+    terminal.getState().turnOn();
   }
 
   public void turnOffTerminal(Terminal terminal) throws TerminalAlreadyOffException {
-    if (terminal.getTerminalState().toString().equals("OFF"))
-      throw new TerminalAlreadyOffException();
-
-    // TODO: check if setTerminalState or setIdleState (need to create this method)
-    terminal.setTerminalState(new OffState(terminal));
+    terminal.getState().turnOff();
   }
 
   public void silenceTerminal(Terminal terminal) throws TerminalAlreadySilenceException {
-    if (terminal.getTerminalState().toString().equals("SILENCE"))
-      throw new TerminalAlreadySilenceException();
-
-    // TODO: check if setTerminalState or setIdleState (need to create this method)
-    terminal.setTerminalState(new SilenceState(terminal));
+    terminal.getState().changeToSilence();
   }
 
   public void performPayment(Terminal terminal, int communication_id)
       throws BadPaymentException, UnknownCommunicationKeyException {
 
-    Communication terminalCurrentCommunication = terminal.getCurrentCommunication();
     Communication communication = getCommunication(communication_id);
-
-    if (!communication.getSender().getId().equals(terminal.getId()) || !communication.isFinished()) {
+    if (!communication.getOriginTerminal().getId().equals(terminal.getId()) || !communication.isFinished()
+        || communication.isPaid()) {
       throw new BadPaymentException();
     }
 
     terminal.pay(communication);
   }
-
-  // TODO: check if client have enabled notifications
 
   // Communication methods
   public Collection<Communication> getAllCommunications() {
@@ -347,8 +332,6 @@ public class Network implements Serializable {
     return communication;
   }
 
-  // TODO: create exception
-  // TODO: check if communication is null
   public Communication getCurrentCommunication(Terminal terminal) throws NoCommunicationException {
     Communication currentCommunication = terminal.getCurrentCommunication();
 
@@ -358,112 +341,124 @@ public class Network implements Serializable {
     return currentCommunication;
   }
 
-  public void startInteractiveCommunication(Terminal sender, String receiver_id, String communication_type)
+  public void startInteractiveCommunication(Terminal origin_terminal, String destination_id, String communication_type)
       throws UnsupportedAtOriginException, UnsupportedAtDestinationException, DestinationIsOffException,
       DestinationIsBusyException, DestinationIsSilentException, UnknownTerminalKeyException {
-    switch (communication_type) {
-      case "VOICE" -> startVoiceCommunication(sender, receiver_id);
-      case "VIDEO" -> startVideoCommunication(sender, receiver_id);
+
+    try {
+      switch (communication_type) {
+        case "VOICE" -> startVoiceCommunication(origin_terminal, destination_id);
+        case "VIDEO" -> startVideoCommunication(origin_terminal, destination_id);
+      }
+    } catch (DestinationIsOffException | DestinationIsBusyException | DestinationIsSilentException e) {
+      getTerminal(destination_id).addClientToNotify(origin_terminal.getClient());
+      throw e;
     }
   }
 
-  public long endInteraciveCommunication(Terminal sender, int duration) {
+  public long endInteraciveCommunication(Terminal origin_terminal, int duration) {
     double cost = 0;
-    switch (sender.getCurrentCommunication().getType()) {
-      case "VOICE" -> cost = endVoiceCommunication(sender, duration);
-      case "VIDEO" -> cost = endVideoCommunication(sender, duration);
+    switch (origin_terminal.getCurrentCommunication().getType()) {
+      case "VOICE" -> cost = endVoiceCommunication(origin_terminal, duration);
+      case "VIDEO" -> cost = endVideoCommunication(origin_terminal, duration);
     }
     return Math.round(cost);
   }
 
-  public TextCommunication sendTextCommunication(Terminal sender, String receiver_id, String message)
+  // Text Communication methods
+  public TextCommunication sendTextCommunication(Terminal origin_terminal, String destination_id, String message)
       throws DestinationIsOffException, UnknownTerminalKeyException {
 
-    Terminal receiver = getTerminal(receiver_id);
+    Terminal destination_terminal = getTerminal(destination_id);
 
-    if (receiver.getTerminalState().toString().equals("OFF"))
-      throw new DestinationIsOffException();
+    // handle the raise of the exceptions when the terminal state is not compatible
+    // with the communication
+    try {
+      destination_terminal.getState().textCommunicationIsPossible();
+    } catch (DestinationIsOffException e) {
+      destination_terminal.addClientToNotify(origin_terminal.getClient());
+      throw e;
+    }
 
     int communication_id = ++_communication_id_counter;
+    TextCommunication textCommunication = origin_terminal.sendTextCommunication(communication_id, destination_terminal,
+        message);
+    _communications.put(textCommunication.getId(), textCommunication);
 
-    TextCommunication textComm = sender.sendTextCommunication(communication_id, receiver, message);
-
-    _communications.put(textComm.getId(), textComm);
-
-    return textComm;
+    return textCommunication;
   }
 
-  public VoiceCommunication startVoiceCommunication(Terminal sender, String receiver_id)
+  // Voice Communication methods
+  public VoiceCommunication startVoiceCommunication(Terminal origin_terminal, String destination_id)
       throws DestinationIsOffException, DestinationIsBusyException, DestinationIsSilentException,
       UnknownTerminalKeyException {
 
-    Terminal receiver = getTerminal(receiver_id);
-
-    if (receiver.getTerminalState().toString().equals("OFF"))
-      throw new DestinationIsOffException();
-
-    if (receiver.getTerminalState().toString().equals("BUSY") || sender.getId().equals(receiver_id))
+    // if we are string to start a voice communication with ourselves
+    if (destination_id.equals(origin_terminal.getId()))
       throw new DestinationIsBusyException();
 
-    if (receiver.getTerminalState().toString().equals("SILENCE"))
-      throw new DestinationIsSilentException();
+    Terminal destination_terminal = getTerminal(destination_id);
 
+    // handle the raise of the exceptions when the terminal state is not compatible
+    // with the communication
+    destination_terminal.getState().voiceCommunicationIsPossible();
+
+    // get the new communication counter
     int communication_id = ++_communication_id_counter;
 
-    VoiceCommunication voiceComm = sender.startVoiceCommunication(communication_id, receiver);
+    // create the new communication
+    VoiceCommunication voiceComm = origin_terminal.startVoiceCommunication(communication_id, destination_terminal);
 
+    // register communication on network
     _communications.put(voiceComm.getId(), voiceComm);
 
     return voiceComm;
   }
 
-  public double endVoiceCommunication(Terminal sender, int duration) {
-    return sender.endCurrentVoiceCommunication(duration);
+  public double endVoiceCommunication(Terminal origin_terminal, int duration) {
+    return origin_terminal.endCurrentVoiceCommunication(duration);
   }
 
-  public VideoCommunication startVideoCommunication(Terminal sender, String receiver_id)
+  // Video Communication methods
+  public VideoCommunication startVideoCommunication(Terminal origin_terminal, String destination_id)
       throws UnsupportedAtOriginException, UnsupportedAtDestinationException, DestinationIsOffException,
       DestinationIsBusyException, DestinationIsSilentException, UnknownTerminalKeyException {
 
-    Terminal receiver = getTerminal(receiver_id);
+    Terminal destination_terminal = getTerminal(destination_id);
 
-    if (sender.getTerminalType().equals("BASIC"))
-      throw new UnsupportedAtOriginException();
-
-    if (receiver.getTerminalType().equals("BASIC"))
-      throw new UnsupportedAtDestinationException();
-
-    if (receiver.getTerminalState().toString().equals("OFF")) {
-      throw new DestinationIsOffException();
+    if (destination_id.equals(origin_terminal.getId())) {
+      throw new DestinationIsBusyException();
     }
 
-    if (receiver.getTerminalState().toString().equals("BUSY") || sender.getId().equals(receiver_id))
-      throw new DestinationIsBusyException();
+    // handle the raise of the exceptions when the communication is not compatible
+    // with the terminals
+    origin_terminal.videoCommunicationIsPossible();
+    destination_terminal.videoCommunicationIsPossible();
 
-    if (receiver.getTerminalState().toString().equals("SILENCE"))
-      throw new DestinationIsSilentException();
+    // handle the raise of the exceptions when the terminal state is not compatible
+    // with the communication
+    destination_terminal.getState().videoCommunicationIsPossible();
 
     int communication_id = ++_communication_id_counter;
+    FancyTerminal fancy_origin_terminal = (FancyTerminal) origin_terminal;
+    VideoCommunication videoCommunication = fancy_origin_terminal.startVideoCommunication(communication_id,
+        (FancyTerminal) destination_terminal);
 
-    FancyTerminal fancySender = (FancyTerminal) sender;
-
-    VideoCommunication videoComm = fancySender.startVideoCommunication(communication_id, (FancyTerminal) receiver);
-
-    _communications.put(videoComm.getId(), videoComm);
-
-    return videoComm;
+    _communications.put(videoCommunication.getId(), videoCommunication);
+    return videoCommunication;
   }
 
-  public double endVideoCommunication(Terminal sender, int duration) {
-    FancyTerminal fancySender = (FancyTerminal) sender;
+  public double endVideoCommunication(Terminal origin_terminal, int duration) {
+    FancyTerminal fancy_origin_terminal = (FancyTerminal) origin_terminal;
 
-    return fancySender.endCurrentVideoCommunication(duration);
+    return fancy_origin_terminal.endCurrentVideoCommunication(duration);
   }
 
+  // Global lookup methods
   public long getGlobalPayments() {
     long total = 0;
     for (Client client : getAllClients()) {
-      total += client.getClientPayments();
+      total += client.getPayments();
     }
 
     return total;
@@ -472,13 +467,11 @@ public class Network implements Serializable {
   public long getGlobalDebts() {
     long total = 0;
     for (Client client : getAllClients()) {
-      total += client.getClientDebts();
+      total += client.getDebts();
     }
 
     return total;
   }
-
-  // TODO: a verificação se já foi pago fica no network
 
   /*
    * Read text input file and create corresponding domain entities.

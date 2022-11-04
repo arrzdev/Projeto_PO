@@ -4,16 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import prr.notifications.CustomNotification;
-import prr.notifications.AppNotification;
-
 import prr.communications.Communication;
 import prr.communications.FinishedCommunicationState;
 import prr.communications.TextCommunication;
 import prr.communications.VoiceCommunication;
 
+import prr.exceptions.UnsupportedAtOriginException;
+import prr.notifications.ClientNotification;
 import prr.payments.PaymentPlan;
-
 import prr.clients.Client;
 
 public class Terminal implements Serializable {
@@ -34,50 +32,57 @@ public class Terminal implements Serializable {
 
   private ArrayList<Communication> _sentComms = new ArrayList<Communication>();
   private ArrayList<Communication> _receivedComms = new ArrayList<Communication>();
-  private Communication _currentComm;
+  private Communication _currentCommunication;
 
-  private ArrayList<CustomNotification> _pendingNotifications = new ArrayList<CustomNotification>();
+  private ArrayList<Client> _clients_to_notify = new ArrayList<Client>();
 
-  // TODO: Receive terminal state (object or string)
   public Terminal(String id, Client client) {
     _id = id;
     _client = client;
   }
 
-  public void pushNotification(CustomNotification notification) {
-    _pendingNotifications.add(notification);
+  public void addClientToNotify(Client client) {
+    if (!_clients_to_notify.contains(client)) {
+      _clients_to_notify.add(client);
+    }
   }
 
-  public void resetNotification() {
-    _pendingNotifications = new ArrayList<CustomNotification>();
+  public void notifyClients(ClientNotification notification) {
+    for (Client client : _clients_to_notify) {
+      if (client.canReceiveNotifications()) { // multiple bug here
+        client.addNotification(notification);
+      }
+    }
+
+    _clients_to_notify.clear();
   }
 
-  public ArrayList<CustomNotification> getNotifications() {
-    return _pendingNotifications;
+  public void videoCommunicationIsPossible() throws UnsupportedAtOriginException {
+    throw new UnsupportedAtOriginException();
   }
 
   public void setTerminalState(TerminalState state) {
     _state = state;
   }
 
-  public TerminalState getTerminalState() {
+  public TerminalState getState() {
     return _state;
   }
 
-  public void setOldTerminalState(TerminalState state) {
+  public void setOldState(TerminalState state) {
     _oldState = state;
   }
 
-  public TerminalState getOldTerminalState() {
+  public TerminalState getOldState() {
     return _oldState;
   }
 
   public Communication getCurrentCommunication() {
-    return _currentComm;
+    return _currentCommunication;
   }
 
   public void setCurrentCommunication(Communication communication) {
-    _currentComm = communication;
+    _currentCommunication = communication;
   }
 
   public Client getClient() {
@@ -134,7 +139,7 @@ public class Terminal implements Serializable {
     return cost;
   }
 
-  public void registerSentCoommunication(Communication comm) {
+  public void registerSentCommunication(Communication comm) {
     _sentComms.add(comm);
   }
 
@@ -142,7 +147,7 @@ public class Terminal implements Serializable {
     return _sentComms;
   }
 
-  public void registerReceivedCoommunication(Communication comm) {
+  public void registerReceivedCommunication(Communication comm) {
     _receivedComms.add(comm);
   }
 
@@ -158,16 +163,8 @@ public class Terminal implements Serializable {
     _friends.put(friend.getId(), friend);
   }
 
-  public void removeFriend(String friendId) {
-    _friends.remove(friendId);
-  }
-
   public void removeFriend(Terminal friend) {
     _friends.remove(friend.getId());
-  }
-
-  public Terminal getFriend(String friendId) {
-    return _friends.get(friendId);
   }
 
   public boolean isFriend(String friendId) {
@@ -182,9 +179,7 @@ public class Terminal implements Serializable {
    *         it was the originator of this communication.
    **/
   public boolean canEndCurrentCommunication() {
-    // return false;
-    // TODO: change .toString() blablabla
-    return _state.toString().equals("BUSY") && _currentComm.getSender().getId().equals(_id);
+    return _state.canEndCurrentCommunication() && _currentCommunication.getOriginTerminal().getId().equals(_id);
   }
 
   /**
@@ -196,12 +191,12 @@ public class Terminal implements Serializable {
     return !(_state.toString().equals("OFF") || _state.toString().equals("BUSY"));
   }
 
-  public TextCommunication sendTextCommunication(int communication_id, Terminal receiver, String textMessage) {
-    TextCommunication textCom = new TextCommunication(communication_id, this, receiver, textMessage);
+  public TextCommunication sendTextCommunication(int communication_id, Terminal terminal, String textMessage) {
+    TextCommunication textCom = new TextCommunication(communication_id, this, terminal, textMessage);
 
-    registerSentCoommunication(textCom);
+    registerSentCommunication(textCom);
 
-    receiver.registerReceivedCoommunication(textCom);
+    terminal.registerReceivedCommunication(textCom);
 
     double cost = addDebt(textCom);
 
@@ -210,42 +205,42 @@ public class Terminal implements Serializable {
     return textCom;
   }
 
-  public VoiceCommunication startVoiceCommunication(int communication_id, Terminal receiver) {
-    VoiceCommunication voiceCom = new VoiceCommunication(communication_id, this, receiver);
+  public VoiceCommunication startVoiceCommunication(int communication_id, Terminal terminal) {
+    VoiceCommunication voiceCom = new VoiceCommunication(communication_id, this, terminal);
 
-    _currentComm = voiceCom;
+    _currentCommunication = voiceCom;
 
-    setOldTerminalState(getTerminalState());
+    setOldState(getState());
 
     setTerminalState(new BusyState(this));
 
-    registerSentCoommunication(voiceCom);
+    registerSentCommunication(voiceCom);
 
-    receiver.setCurrentCommunication(_currentComm);
+    terminal.setCurrentCommunication(_currentCommunication);
 
-    receiver.setOldTerminalState(receiver.getTerminalState());
+    terminal.setOldState(terminal.getState());
 
-    receiver.setTerminalState(new BusyState(receiver));
+    terminal.getState().changeToBusy();
 
-    receiver.registerReceivedCoommunication(voiceCom);
+    terminal.registerReceivedCommunication(voiceCom);
 
     return voiceCom;
   }
 
   public double endCurrentVoiceCommunication(int duration) {
-    VoiceCommunication currentVoiceComm = (VoiceCommunication) _currentComm;
+    VoiceCommunication currentVoiceComm = (VoiceCommunication) _currentCommunication;
 
     currentVoiceComm.setDuration(duration);
     currentVoiceComm.setCommunicationState(new FinishedCommunicationState(currentVoiceComm));
 
-    Terminal receiver = currentVoiceComm.getReceiver();
-    receiver.setCurrentCommunication(null);
-    receiver.setTerminalState(receiver.getOldTerminalState());
-    receiver.setOldTerminalState(null);
+    Terminal destination_terminal = currentVoiceComm.getDestination();
+    destination_terminal.setCurrentCommunication(null);
+    destination_terminal.setTerminalState(destination_terminal.getOldState());
+    destination_terminal.setOldState(null);
 
     setCurrentCommunication(null);
-    setTerminalState(getOldTerminalState());
-    setOldTerminalState(null);
+    setTerminalState(getOldState());
+    setOldState(null);
 
     double cost = addDebt(currentVoiceComm);
 
@@ -254,7 +249,7 @@ public class Terminal implements Serializable {
     return cost;
   }
 
-  public String getTerminalType() {
+  public String getType() {
     return "BASIC";
   }
 
@@ -266,7 +261,7 @@ public class Terminal implements Serializable {
     if (_friends.size() != 0)
       friends = "|" + String.join(", ", _friends.keySet());
 
-    return String.format("%s|%s|%s|%s|%d|%d%s", getTerminalType(), getId(), getClient().getId(),
+    return String.format("%s|%s|%s|%s|%d|%d%s", getType(), getId(), getClient().getId(),
         _state.toString(), Math.round(_payments), Math.round(_debts),
         friends);
   }

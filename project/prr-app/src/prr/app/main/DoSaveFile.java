@@ -17,8 +17,6 @@ class DoSaveFile extends Command<NetworkManager> {
     super(Label.SAVE_FILE, receiver);
   }
 
-  // TODO: change code not igual CORREIA
-
   @Override
   protected final void execute() {
     try {

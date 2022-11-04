@@ -1,7 +1,7 @@
 package prr.terminals;
 
-import javax.swing.plaf.metal.MetalBorders.TextFieldBorder;
-
+import prr.exceptions.DestinationIsBusyException;
+import prr.notifications.BusyToIdle;
 import java.io.Serializable;
 
 public class BusyState extends TerminalState implements Serializable {
@@ -9,21 +9,21 @@ public class BusyState extends TerminalState implements Serializable {
     super(t);
   }
 
-  // Block sending of communications
-  @Override
-  public boolean allowSendText() {
-    return false;
+  public void turnOnTerminal() {
+    _terminal.notifyClients(new BusyToIdle(_terminal.getId()));
+    _terminal.setTerminalState(new IdleState(_terminal));
   }
 
-  @Override
-  public boolean allowSendVideo() {
-    return false;
+  public void voiceCommunicationIsPossible() throws DestinationIsBusyException {
+    throw new DestinationIsBusyException();
   }
 
-  // Block receiving of video communications
-  @Override
-  public boolean allowReceiveVideo() {
-    return false;
+  public void videoCommunicationIsPossible() throws DestinationIsBusyException {
+    throw new DestinationIsBusyException();
+  }
+
+  public boolean canEndCurrentCommunication() {
+    return true;
   }
 
   @Override

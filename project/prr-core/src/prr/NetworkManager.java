@@ -63,7 +63,7 @@ public class NetworkManager {
    *                                         to disk.
    */
   public void save() throws FileNotFoundException, MissingFileAssociationException, IOException {
-    if (_filename == null || _filename.isBlank()) { // TOMAS (isBlank??)
+    if (_filename == null || _filename.isBlank()) {
       throw new MissingFileAssociationException();
     }
 

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.TreeMap;
 
 import prr.communications.Communication;
+import prr.notifications.ClientNotification;
 import prr.terminals.Terminal;
 import prr.payments.PaymentPlan;
 import prr.payments.NormalPaymentPlan;
@@ -14,7 +15,8 @@ public class Client implements Serializable {
   private String _id;
   private String _name;
   private int _nif;
-  private boolean _notifications = true;
+  private boolean receive_notifications = true;
+  private ArrayList<ClientNotification> _notifications = new ArrayList<ClientNotification>();
 
   private TreeMap<String, Terminal> _terminals = new TreeMap<String, Terminal>();
   private PaymentPlan _paymentPlan = new NormalPaymentPlan(this);
@@ -22,8 +24,23 @@ public class Client implements Serializable {
   public Client(String id, String name, int nif) {
     _id = id;
     _name = name;
-    // _nif = nif.replaceFirst("^0+(?!$)", "");
     _nif = nif;
+  }
+
+  public String getId() {
+    return _id;
+  }
+
+  public void addNotification(ClientNotification notification) {
+    _notifications.add(notification);
+  }
+
+  public void clearNotifications() {
+    _notifications.clear();
+  }
+
+  public ArrayList<ClientNotification> getNotifications() {
+    return _notifications;
   }
 
   public void setPaymentPlan(PaymentPlan paymentPlan) {
@@ -34,36 +51,20 @@ public class Client implements Serializable {
     _terminals.put(terminal.getId(), terminal);
   }
 
-  public String getId() {
-    return _id;
-  }
-
-  public String getName() {
-    return _name;
-  }
-
-  public int getNif() {
-    return _nif;
-  }
-
-  public int getNumberOfTerminals() {
-    return _terminals.size();
-  }
-
-  public void toggleNotifications() {
+  public void toggleReceiveNotifications() {
     // change notifications status between true and false
-    if (getNotificationsStatus()) {
-      _notifications = false;
+    if (canReceiveNotifications()) {
+      receive_notifications = false;
     } else {
-      _notifications = true;
+      receive_notifications = true;
     }
   }
 
-  public boolean getNotificationsStatus() {
-    return _notifications;
+  public boolean canReceiveNotifications() {
+    return receive_notifications;
   }
 
-  public double getClientPayments() {
+  public double getPayments() {
     double client_payments = 0;
 
     for (Terminal t : _terminals.values()) {
@@ -73,7 +74,7 @@ public class Client implements Serializable {
     return Math.round(client_payments);
   }
 
-  public double getClientDebts() {
+  public double getDebts() {
     double client_debts = 0;
 
     for (Terminal t : _terminals.values()) {
@@ -84,7 +85,7 @@ public class Client implements Serializable {
   }
 
   public int getBalance() {
-    return (int) (getClientPayments()) - (int) getClientDebts();
+    return (int) (getPayments() - getDebts());
   }
 
   public PaymentPlan getPaymentPlan() {
@@ -117,9 +118,9 @@ public class Client implements Serializable {
 
   @Override
   public String toString() {
-    String hasNotificationsEnabled = getNotificationsStatus() ? "YES" : "NO";
+    String hasNotificationsEnabled = canReceiveNotifications() ? "YES" : "NO";
 
-    return String.format("CLIENT|%s|%s|%s|NORMAL|%s|%d|0|0", getId(), getName(), getNif(), hasNotificationsEnabled,
-        getNumberOfTerminals());
+    return String.format("CLIENT|%s|%s|%s|%s|%s|%d|%d|%d", _id, _name, _nif, _paymentPlan, hasNotificationsEnabled,
+        _terminals.size(), Math.round(getPayments()), Math.round(getDebts()));
   }
 }

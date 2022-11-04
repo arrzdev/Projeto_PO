@@ -1,7 +1,11 @@
 #!/bin/bash
 
-right=0
-left=0
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+NC="\033[0m" # No Color
+pass=0
+fail=0
+
 
 export CLASSPATH=$(pwd)/po-uilib/po-uilib.jar:$(pwd)/prr-core/prr-core.jar:$(pwd)/prr-app/prr-app.jar
 for x in tests/*.in; do
@@ -13,19 +17,24 @@ for x in tests/*.in; do
 
     diff -cB -w ${x%.in}.out ${x%.in}.outhyp > ${x%.in}.diff ;
     if [ -s ${x%.in}.diff ]; then
-        echo "FAIL: $x. See file ${x%.in}.diff " ;
-        left=$((left + 1));
-    else
-        echo "PASSED: $x"
-        right=$((right + 1))
-        rm -f ${x%.in}.diff ${x%.in}.outhyp ; 
+        echo -e "${RED} FAIL: $x. See file ${x%.in}.diff ${NC}"
+        tempzzzT=${x:6}
+        grep "${tempzzzT%.in}" README
+        fail=$((fail+1))
 
+    else
+        echo -e "${GREEN} PASS: $x ${NC}"
+        rm -f ${x%.in}.diff ${x%.in}.outhyp ;
+        pass=$((pass+1))
     fi
 done
 
 #rm -f saved*
 
-echo "SCORE:" $right"/"$((right + left))
-echo "PASSED: $right"
-echo "FAILED: $left"
+
+echo -e "${GREEN} Passed ${NC}: $pass"
+echo -e "${RED} Failed ${NC}: $fail"
 echo "Done."
+
+make clean > /dev/null
+rm *.dat

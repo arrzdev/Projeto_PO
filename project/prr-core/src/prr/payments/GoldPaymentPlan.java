@@ -35,7 +35,7 @@ public class GoldPaymentPlan extends PaymentPlan implements Serializable {
   public double cost(VoiceCommunication com) {
     double base = 10 * com.getUnits();
 
-    if (com.getSender().isFriend(com.getSender().getId()))
+    if (com.getOriginTerminal().isFriend(com.getOriginTerminal().getId()))
       base *= 0.5;
 
     return base;
@@ -44,7 +44,7 @@ public class GoldPaymentPlan extends PaymentPlan implements Serializable {
   public double cost(VideoCommunication com) {
     double base = 20 * com.getUnits();
 
-    if (com.getSender().isFriend(com.getSender().getId()))
+    if (com.getOriginTerminal().isFriend(com.getOriginTerminal().getId()))
       base *= 0.5;
 
     return base;

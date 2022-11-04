@@ -32,7 +32,7 @@ public class NormalPaymentPlan extends PaymentPlan implements Serializable {
   public double cost(VoiceCommunication com) {
     double base = 20 * com.getUnits();
 
-    if (com.getSender().isFriend(com.getSender().getId()))
+    if (com.getOriginTerminal().isFriend(com.getOriginTerminal().getId()))
       base *= 0.5;
 
     return base;
@@ -41,7 +41,7 @@ public class NormalPaymentPlan extends PaymentPlan implements Serializable {
   public double cost(VideoCommunication com) {
     double base = 30 * com.getUnits();
 
-    if (com.getSender().isFriend(com.getSender().getId()))
+    if (com.getOriginTerminal().isFriend(com.getOriginTerminal().getId()))
       base *= 0.5;
 
     return base;

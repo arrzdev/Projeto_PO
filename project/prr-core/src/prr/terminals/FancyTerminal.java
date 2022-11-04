@@ -11,26 +11,30 @@ public class FancyTerminal extends Terminal implements Serializable {
     super(id, client);
   }
 
+  public void videoCommunicationIsPossible() {
+  }
+
   public VideoCommunication startVideoCommunication(int communication_id, Terminal receiver) {
-    VideoCommunication videoCom = new VideoCommunication(communication_id, this, receiver);
+    VideoCommunication videoCommunication = new VideoCommunication(communication_id, this, receiver);
 
-    setCurrentCommunication(videoCom);
+    // set the communication as the current one
+    setCurrentCommunication(videoCommunication);
 
-    setOldTerminalState(getTerminalState());
+    setOldState(getState());
 
     setTerminalState(new BusyState(this));
 
-    registerSentCoommunication(videoCom);
+    registerSentCommunication(videoCommunication);
 
-    receiver.setCurrentCommunication(videoCom);
+    receiver.setCurrentCommunication(videoCommunication);
 
-    receiver.setOldTerminalState(receiver.getTerminalState());
+    receiver.setOldState(receiver.getState());
 
     receiver.setTerminalState(new BusyState(receiver));
 
-    receiver.registerReceivedCoommunication(videoCom);
+    receiver.registerReceivedCommunication(videoCommunication);
 
-    return videoCom;
+    return videoCommunication;
   }
 
   public double endCurrentVideoCommunication(int duration) {
@@ -39,14 +43,14 @@ public class FancyTerminal extends Terminal implements Serializable {
     currentVideoComm.setDuration(duration);
     currentVideoComm.setCommunicationState(new FinishedCommunicationState(currentVideoComm));
 
-    Terminal receiver = currentVideoComm.getReceiver();
-    receiver.setCurrentCommunication(null);
-    receiver.setTerminalState(receiver.getOldTerminalState());
-    receiver.setOldTerminalState(null);
+    Terminal destination_terminal = currentVideoComm.getDestination();
+    destination_terminal.setCurrentCommunication(null);
+    destination_terminal.setTerminalState(destination_terminal.getOldState());
+    destination_terminal.setOldState(null);
 
     setCurrentCommunication(null);
-    setTerminalState(getOldTerminalState());
-    setOldTerminalState(null);
+    setTerminalState(getOldState());
+    setOldState(null);
 
     double cost = addDebt(currentVideoComm);
 
@@ -56,7 +60,7 @@ public class FancyTerminal extends Terminal implements Serializable {
   }
 
   @Override
-  public String getTerminalType() {
+  public String getType() {
     return "FANCY";
   }
 

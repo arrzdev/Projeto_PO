@@ -10,8 +10,8 @@ import java.lang.Math;
 public abstract class Communication implements Serializable {
   private int _id;
 
-  private Terminal _sender;
-  private Terminal _receiver;
+  private Terminal _origin;
+  private Terminal _destination;
   private CommunicationState _state;
 
   private boolean _paid = false;
@@ -19,10 +19,10 @@ public abstract class Communication implements Serializable {
   private boolean _ended = false;
   private double _cost = 0;
 
-  public Communication(int id, Terminal sender, Terminal receiver) {
+  public Communication(int id, Terminal origin_terminal, Terminal receiver) {
     _id = id;
-    _sender = sender;
-    _receiver = receiver;
+    _origin = origin_terminal;
+    _destination = receiver;
     _state = new OngoingCommunicationState(this);
   }
 
@@ -30,12 +30,12 @@ public abstract class Communication implements Serializable {
     _state = state;
   }
 
-  public Terminal getSender() {
-    return _sender;
+  public Terminal getOriginTerminal() {
+    return _origin;
   }
 
-  public Terminal getReceiver() {
-    return _receiver;
+  public Terminal getDestination() {
+    return _destination;
   }
 
   public boolean isOnGoing() {
@@ -75,7 +75,7 @@ public abstract class Communication implements Serializable {
   abstract public int getUnits();
 
   public String toString() {
-    return String.format("%s|%d|%s|%s|%d|%d|%s", getType(), _id, _sender.getId(), _receiver.getId(), getUnits(),
+    return String.format("%s|%d|%s|%s|%d|%d|%s", getType(), _id, _origin.getId(), _destination.getId(), getUnits(),
         Math.round(_cost),
         _state);
   }
