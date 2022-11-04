@@ -63,8 +63,8 @@ public class Client implements Serializable {
     return _notifications;
   }
 
-  public long getClientPayments() {
-    long client_payments = 0;
+  public double getClientPayments() {
+    double client_payments = 0;
 
     for (Terminal t : _terminals.values()) {
       client_payments += t.getPayments();
@@ -73,8 +73,8 @@ public class Client implements Serializable {
     return Math.round(client_payments);
   }
 
-  public long getClientDebts() {
-    long client_debts = 0;
+  public double getClientDebts() {
+    double client_debts = 0;
 
     for (Terminal t : _terminals.values()) {
       client_debts += t.getDebts();
@@ -85,6 +85,10 @@ public class Client implements Serializable {
 
   public int getBalance() {
     return (int) (getClientPayments()) - (int) getClientDebts();
+  }
+
+  public PaymentPlan getPaymentPlan() {
+    return _paymentPlan;
   }
 
   public ArrayList<Communication> getSentCommunications() {
@@ -109,6 +113,16 @@ public class Client implements Serializable {
     comms.sort(Comparator.comparing(Communication::getId));
 
     return comms;
+  }
+
+  public void pay(Communication communication) {
+    Terminal terminal = communication.getSender();
+    terminal.pay(communication);
+  }
+
+  public void addDebt(Communication communication) {
+    Terminal terminal = communication.getSender();
+    terminal.addDebt(communication);
   }
 
   @Override

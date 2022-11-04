@@ -12,6 +12,8 @@ import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import java.lang.Math;
+
 //import exceptions
 import java.io.IOException;
 
@@ -22,10 +24,34 @@ import prr.exceptions.DuplicateClientKeyException;
 
 import prr.exceptions.DuplicateTerminalKeyException;
 import prr.exceptions.InvalidTerminalKeyException;
+import prr.exceptions.NoCommunicationException;
+import prr.exceptions.TerminalAlreadyOffException;
+import prr.exceptions.TerminalAlreadyOnException;
+import prr.exceptions.TerminalAlreadySilenceException;
+
+import prr.exceptions.UnknownCommunicationKeyException;
+
+import prr.exceptions.BadPaymentException;
+
+import prr.exceptions.ClientNotificationsAlreadyEnabledException;
+import prr.exceptions.ClientNotificationsAlreadyDisabledException;
+
+import prr.exceptions.DestinationIsOffException;
+import prr.exceptions.DestinationIsBusyException;
+import prr.exceptions.DestinationIsSilentException;
+
+import prr.exceptions.UnsupportedAtDestinationException;
+import prr.exceptions.UnsupportedAtOriginException;
+
+import prr.exceptions.InvalidCommunicationException;
 
 //clients
 import prr.clients.Client;
 import prr.communications.Communication;
+import prr.communications.TextCommunication;
+import prr.communications.VoiceCommunication;
+import prr.communications.VideoCommunication;
+
 //terminals
 import prr.terminals.Terminal;
 import prr.terminals.BusyState;
@@ -35,6 +61,11 @@ import prr.terminals.IdleState;
 import prr.terminals.SilenceState;
 import prr.terminals.FancyTerminal;
 import prr.terminals.OffState;
+
+//TODO: Change show... to get... etc etc...
+
+//communications
+import prr.communications.TextCommunication;
 
 /**
  * Class Store implements a store.
@@ -47,6 +78,8 @@ public class Network implements Serializable {
   private TreeMap<String, Client> _clients = new TreeMap<String, Client>(String.CASE_INSENSITIVE_ORDER);
   private TreeMap<String, Terminal> _terminals = new TreeMap<String, Terminal>(String.CASE_INSENSITIVE_ORDER);
   private TreeMap<Integer, Communication> _communications = new TreeMap<Integer, Communication>();
+
+  private int _communication_id_counter = 0;
 
   // Client methods
   public void registerClient(String id, String name, int nif) throws DuplicateClientKeyException {
@@ -68,11 +101,12 @@ public class Network implements Serializable {
     return client;
   }
 
-  public Collection<Client> getClients() {
+  public Collection<Client> showAllClients() {
     return _clients.values();
   }
 
-  public boolean disableClientNotifications(String client_id) throws UnknownClientKeyException {
+  public void disableClientNotifications(String client_id)
+      throws UnknownClientKeyException, ClientNotificationsAlreadyDisabledException {
     Client client = getClient(client_id);
 
     if (client == null) {
@@ -80,14 +114,14 @@ public class Network implements Serializable {
     }
 
     if (!(client.getNotificationsStatus())) {
-      return false;
+      throw new ClientNotificationsAlreadyDisabledException();
     }
 
     client.toggleNotifications();
-    return true;
   }
 
-  public boolean enableClientNotifications(String client_id) throws UnknownClientKeyException {
+  public void enableClientNotifications(String client_id)
+      throws UnknownClientKeyException, ClientNotificationsAlreadyEnabledException {
     Client client = getClient(client_id);
 
     if (client == null) {
@@ -95,24 +129,33 @@ public class Network implements Serializable {
     }
 
     if (client.getNotificationsStatus()) {
-      return false;
+      throw new ClientNotificationsAlreadyEnabledException();
     }
 
     client.toggleNotifications();
-    return true;
   }
 
-  public long[] getClientPaymentsAndDebts(String client_id) throws UnknownClientKeyException {
+  public long getClientPayments(String client_id) throws UnknownClientKeyException {
     Client client = getClient(client_id);
 
     if (client == null) {
       throw new UnknownClientKeyException(client_id);
     }
 
-    return new long[] { client.getClientDebts(), client.getClientPayments() };
+    return Math.round(client.getClientPayments());
   }
 
-  public Collection<Client> showClients(boolean withDebt) {
+  public long getClientDebts(String client_id) throws UnknownClientKeyException {
+    Client client = getClient(client_id);
+
+    if (client == null) {
+      throw new UnknownClientKeyException(client_id);
+    }
+
+    return Math.round(client.getClientDebts());
+  }
+
+  public Collection<Client> showClientsWithAndWithoutDebts(boolean withDebt) {
     return _clients.values().stream().filter(c -> withDebt ? c.getClientDebts() > 0 : c.getClientDebts() == 0)
         .collect(Collectors.toList());
   }
@@ -172,28 +215,109 @@ public class Network implements Serializable {
     return terminal;
   }
 
-  public Collection<Terminal> getTerminals() {
+  public Collection<Terminal> showAllTerminals() {
     return _terminals.values();
   }
 
-  public Collection<Terminal> getUnusedTerminals() {
+  public Collection<Terminal> showUnusedTerminals() {
     Predicate<Terminal> filterPredicate = terminal -> terminal.getTotalCommunicationsCount() == 0;
 
     return _terminals.values().stream().filter(filterPredicate).collect(Collectors.toList());
   }
 
-  public Collection<Terminal> getTerminalsWithPositiveBalance() {
+  public Collection<Terminal> showTerminalsWithPositiveBalance() {
     Predicate<Terminal> filterPredicate = terminal -> terminal.getPayments() - terminal.getDebts() > 0;
 
     return _terminals.values().stream().filter(filterPredicate).collect(Collectors.toList());
   }
+
+  public long getTerminalPayments(Terminal terminal) {
+    return Math.round(terminal.getPayments());
+  }
+
+  public long getTerminalDebts(Terminal terminal) {
+    return Math.round(terminal.getDebts());
+  }
+
+  // Consult Terminal methods
+
+  public void addFriend(Terminal terminal, String friend_id) throws UnknownTerminalKeyException {
+    // check if they are already friends or if we are trying to add ourselves
+    if (terminal.isFriend(friend_id) || terminal.getId().equals(friend_id))
+      return;
+
+    Terminal terminalFriend = getTerminal(friend_id);
+
+    // add friend to each other
+    terminalFriend.addFriend(terminal);
+    terminal.addFriend(terminalFriend);
+  }
+
+  public void removeFriend(Terminal terminal, String friend_id) throws UnknownTerminalKeyException {
+    if (!terminal.isFriend(friend_id) || terminal.getId().equals(friend_id))
+      return;
+
+    Terminal terminalFriend = getTerminal(friend_id);
+
+    // add friend to each other
+    terminalFriend.removeFriend(terminal);
+    terminal.removeFriend(terminalFriend);
+  }
+
+  public void turnOnTerminal(Terminal terminal) throws TerminalAlreadyOnException {
+    if (terminal.getTerminalState().toString().equals("IDLE"))
+      throw new TerminalAlreadyOnException();
+
+    // TODO: check if setTerminalState or setIdleState (need to create this method)
+    terminal.setTerminalState(new IdleState(terminal));
+  }
+
+  public void turnOffTerminal(Terminal terminal) throws TerminalAlreadyOffException {
+    if (terminal.getTerminalState().toString().equals("OFF"))
+      throw new TerminalAlreadyOffException();
+
+    // TODO: check if setTerminalState or setIdleState (need to create this method)
+    terminal.setTerminalState(new OffState(terminal));
+  }
+
+  public void silenceTerminal(Terminal terminal) throws TerminalAlreadySilenceException {
+    if (terminal.getTerminalState().toString().equals("SILENCE"))
+      throw new TerminalAlreadySilenceException();
+
+    // TODO: check if setTerminalState or setIdleState (need to create this method)
+    terminal.setTerminalState(new SilenceState(terminal));
+  }
+
+  public void performPayment(Terminal terminal, int communication_id)
+      throws BadPaymentException, UnknownCommunicationKeyException {
+
+    Communication terminalCurrentCommunication = terminal.getCurrentCommunication();
+    Communication communication = getCommunication(communication_id);
+
+    if (!communication.getSender().getId().equals(terminal.getId()) || terminalCurrentCommunication != null) {
+      throw new BadPaymentException();
+    }
+
+    terminal.pay(communication);
+  }
+
+  public void payCommunication(Terminal terminal, int communication_id) throws InvalidCommunicationException {
+    Communication communication = _communications.get(communication_id);
+
+    if (!communication.isFinished() || communication.isPaid())
+      throw new InvalidCommunicationException();
+
+    terminal.pay(communication);
+  }
+
+  // TODO: check if client have enabled notifications
 
   // Communication methods
   public Collection<Communication> showAllCommunications() {
     return _communications.values();
   }
 
-  public ArrayList<Communication> showCommunicationSent(String client_id) throws UnknownClientKeyException {
+  public ArrayList<Communication> showCommunicationsFromClient(String client_id) throws UnknownClientKeyException {
     Client client = _clients.get(client_id);
 
     if (client == null) {
@@ -203,7 +327,7 @@ public class Network implements Serializable {
     return client.getSentCommunications();
   }
 
-  public ArrayList<Communication> showCommunicationReceived(String client_id) throws UnknownClientKeyException {
+  public ArrayList<Communication> showCommunicationsToClient(String client_id) throws UnknownClientKeyException {
     Client c = _clients.get(client_id);
 
     if (c == null) {
@@ -212,6 +336,123 @@ public class Network implements Serializable {
 
     return c.getReceivedCommunications();
   }
+
+  public Communication getCommunication(int communication_id) throws UnknownCommunicationKeyException {
+    Communication communication = _communications.get(communication_id);
+
+    if (communication == null)
+      throw new UnknownCommunicationKeyException();
+
+    return communication;
+  }
+
+  // TODO: create exception
+  // TODO: check if communication is null
+  public Communication showCurrentCommunication(Terminal terminal) throws NoCommunicationException {
+    Communication currentCommunication = terminal.getCurrentCommunication();
+
+    if (currentCommunication == null)
+      throw new NoCommunicationException();
+
+    return currentCommunication;
+  }
+
+  public void startInteractiveCommunication(Terminal sender, String receiver_id, String communication_type)
+      throws UnsupportedAtOriginException, UnsupportedAtDestinationException, DestinationIsOffException,
+      DestinationIsBusyException, DestinationIsSilentException, UnknownTerminalKeyException {
+    switch (communication_type) {
+      case "VOICE" -> startVoiceCommunication(sender, receiver_id);
+      case "VIDEO" -> startVideoCommunication(sender, receiver_id);
+    }
+  }
+
+  public long endInteraciveCommunication(Terminal sender, int duration) {
+    double cost = 0;
+    switch (sender.getCurrentCommunication().getType()) {
+      case "VOICE" -> cost = endVoiceCommunication(sender, duration);
+      case "VIDEO" -> cost = endVideoCommunication(sender, duration);
+    }
+    return Math.round(cost);
+  }
+
+  public TextCommunication sendTextCommunication(Terminal sender, String receiver_id, String message)
+      throws DestinationIsOffException, UnknownTerminalKeyException {
+
+    Terminal receiver = getTerminal(receiver_id);
+
+    if (receiver.getTerminalState().toString().equals("OFF"))
+      throw new DestinationIsOffException();
+
+    int communication_id = ++_communication_id_counter;
+
+    TextCommunication textComm = sender.sendTextCommunication(communication_id, receiver, message);
+
+    return textComm;
+  }
+
+  public VoiceCommunication startVoiceCommunication(Terminal sender, String receiver_id)
+      throws DestinationIsOffException, DestinationIsBusyException, DestinationIsSilentException,
+      UnknownTerminalKeyException {
+
+    Terminal receiver = getTerminal(receiver_id);
+
+    if (receiver.getTerminalState().toString().equals("OFF"))
+      throw new DestinationIsOffException();
+
+    if (receiver.getTerminalState().toString().equals("BUSY") || sender.getId().equals(receiver_id))
+      throw new DestinationIsBusyException();
+
+    if (receiver.getTerminalState().toString().equals("SILENCE"))
+      throw new DestinationIsSilentException();
+
+    int communication_id = ++_communication_id_counter;
+
+    VoiceCommunication voiceComm = sender.startVoiceCommunication(communication_id, receiver);
+
+    return voiceComm;
+  }
+
+  public double endVoiceCommunication(Terminal sender, int duration) {
+    return sender.endCurrentVoiceCommunication(duration);
+  }
+
+  public VideoCommunication startVideoCommunication(Terminal sender, String receiver_id)
+      throws UnsupportedAtOriginException, UnsupportedAtDestinationException, DestinationIsOffException,
+      DestinationIsBusyException, DestinationIsSilentException, UnknownTerminalKeyException {
+
+    Terminal receiver = getTerminal(receiver_id);
+
+    if (sender.getTerminalType().equals("BASIC"))
+      throw new UnsupportedAtOriginException();
+
+    if (receiver.getTerminalType().equals("BASIC"))
+      throw new UnsupportedAtDestinationException();
+
+    if (receiver.getTerminalState().toString().equals("OFF"))
+      throw new DestinationIsOffException();
+
+    if (receiver.getTerminalState().toString().equals("BUSY") || sender.getId().equals(receiver_id))
+      throw new DestinationIsBusyException();
+
+    if (receiver.getTerminalState().toString().equals("SILENCE"))
+      throw new DestinationIsSilentException();
+
+    int communication_id = ++_communication_id_counter;
+
+    FancyTerminal fancySender = (FancyTerminal) sender;
+
+    VideoCommunication videoComm = fancySender.startVideoCommunication(communication_id, (FancyTerminal) receiver);
+
+    return videoComm;
+  }
+
+  public double endVideoCommunication(Terminal sender, int duration) {
+    FancyTerminal fancySender = (FancyTerminal) sender;
+
+    return fancySender.endCurrentVideoCommunication(duration);
+  }
+
+  // TODO: a verificação se já foi pago fica no network
 
   /*
    * Read text input file and create corresponding domain entities.
@@ -331,7 +572,8 @@ public class Network implements Serializable {
       Terminal terminal = getTerminal(terminal_id);
 
       for (String friendId : parsedFriendsId) {
-        terminal.addFriend(friendId);
+        Terminal terminalFriend = getTerminal(friendId);
+        terminal.addFriend(terminalFriend);
       }
     } catch (Exception e) {
       throw new UnrecognizedEntryException("Error while processing terminal");

@@ -8,29 +8,20 @@ import prr.communications.VideoCommunication;
 import prr.communications.VoiceCommunication;
 
 public class GoldPaymentPlan extends PaymentPlan implements Serializable {
-  private int videoComsMadeWithPositiveBalance = 0;
-
   public GoldPaymentPlan(Client c) {
     super(c);
   }
 
-  protected void update() {
+  public void update() {
     if (_client.getBalance() < 0)
       _client.setPaymentPlan(new NormalPaymentPlan(_client));
 
-    if (videoComsMadeWithPositiveBalance == 5)
+    if (getStreak() == 5)
       _client.setPaymentPlan(new PlatiniumPaymentPlan(_client));
-
   }
 
-  public void pay() {
-    // TODO: update number of video communication made with positive balance
-
-    update();
-  }
-
-  public int cost(TextCommunication com) {
-    int chars = com.getMessage().length();
+  public double cost(TextCommunication com) {
+    double chars = com.getUnits();
 
     if (chars < 50)
       return 10;
@@ -41,8 +32,8 @@ public class GoldPaymentPlan extends PaymentPlan implements Serializable {
     return 2 * chars;
   }
 
-  public int cost(VoiceCommunication com) {
-    int base = 10;
+  public double cost(VoiceCommunication com) {
+    double base = 10 * com.getUnits();
 
     if (com.getSender().isFriend(com.getSender().getId()))
       base *= 0.5;
@@ -50,12 +41,17 @@ public class GoldPaymentPlan extends PaymentPlan implements Serializable {
     return base;
   }
 
-  public int cost(VideoCommunication com) {
-    int base = 20;
+  public double cost(VideoCommunication com) {
+    double base = 20 * com.getUnits();
 
     if (com.getSender().isFriend(com.getSender().getId()))
       base *= 0.5;
 
     return base;
+  }
+
+  @Override
+  public String toString() {
+    return "GOLD";
   }
 }

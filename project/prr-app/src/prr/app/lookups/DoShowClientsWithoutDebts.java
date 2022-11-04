@@ -16,6 +16,7 @@ class DoShowClientsWithoutDebts extends Command<Network> {
 
   @Override
   protected final void execute() throws CommandException {
-    _display.addAll(_receiver.showClients(false));
+    _display.addAll(_receiver.showClientsWithAndWithoutDebts(false));
+    _display.display();
   }
 }

@@ -17,5 +17,6 @@ class DoShowAllCommunications extends Command<Network> {
   @Override
   protected final void execute() throws CommandException {
     _display.addAll(_receiver.showAllCommunications());
+    _display.display();
   }
 }

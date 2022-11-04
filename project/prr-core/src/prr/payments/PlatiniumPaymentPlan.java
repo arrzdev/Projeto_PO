@@ -12,17 +12,13 @@ public class PlatiniumPaymentPlan extends PaymentPlan implements Serializable {
     super(c);
   }
 
-  protected void update() {
+  public void update() {
     if (_client.getBalance() < 0)
       _client.setPaymentPlan(new NormalPaymentPlan(_client));
   }
 
-  public void pay() {
-    update();
-  }
-
-  public int cost(TextCommunication com) {
-    int chars = com.getMessage().length();
+  public double cost(TextCommunication com) {
+    double chars = com.getUnits();
 
     if (chars < 50)
       return 0;
@@ -33,8 +29,8 @@ public class PlatiniumPaymentPlan extends PaymentPlan implements Serializable {
     return 4;
   }
 
-  public int cost(VoiceCommunication com) {
-    int base = 10;
+  public double cost(VoiceCommunication com) {
+    double base = 10 * com.getUnits();
 
     if (com.getSender().isFriend(com.getSender().getId()))
       base *= 0.5;
@@ -42,12 +38,17 @@ public class PlatiniumPaymentPlan extends PaymentPlan implements Serializable {
     return base;
   }
 
-  public int cost(VideoCommunication com) {
-    int base = 10;
+  public double cost(VideoCommunication com) {
+    double base = 10 * com.getUnits();
 
     if (com.getSender().isFriend(com.getSender().getId()))
       base *= 0.5;
 
     return base;
+  }
+
+  @Override
+  public String toString() {
+    return "PLATINIUM";
   }
 }

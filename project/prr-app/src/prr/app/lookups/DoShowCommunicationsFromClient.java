@@ -20,7 +20,8 @@ class DoShowCommunicationsFromClient extends Command<Network> {
   @Override
   protected final void execute() throws CommandException {
     try {
-      _receiver.showCommunicationSent(stringField("client_id"));
+      _display.addAll(_receiver.showCommunicationsFromClient(stringField("client_id")));
+      _display.display();
     } catch (prr.exceptions.UnknownClientKeyException e) {
       throw new UnknownClientKeyException(e.getKey());
     }

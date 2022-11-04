@@ -10,12 +10,16 @@ import pt.tecnico.uilib.menus.CommandException;
  */
 class DoTurnOnTerminal extends TerminalCommand {
 
-	DoTurnOnTerminal(Network context, Terminal terminal) {
-		super(Label.POWER_ON, context, terminal);
-	}
+  DoTurnOnTerminal(Network context, Terminal terminal) {
+    super(Label.POWER_ON, context, terminal);
+  }
 
-	@Override
-	protected final void execute() throws CommandException {
-                //FIXME implement command
-	}
+  @Override
+  protected final void execute() throws CommandException {
+    try {
+      _network.turnOnTerminal(_receiver);
+    } catch (prr.exceptions.TerminalAlreadyOnException e) {
+      _display.popup(Message.alreadyOn());
+    }
+  }
 }

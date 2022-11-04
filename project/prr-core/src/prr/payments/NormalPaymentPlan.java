@@ -12,17 +12,13 @@ public class NormalPaymentPlan extends PaymentPlan implements Serializable {
     super(c);
   }
 
-  protected void update() {
+  public void update() {
     if (_client.getBalance() > 500)
       _client.setPaymentPlan(new GoldPaymentPlan(_client));
   }
 
-  public void pay() {
-    update();
-  }
-
-  public int cost(TextCommunication com) {
-    int chars = com.getMessage().length();
+  public double cost(TextCommunication com) {
+    double chars = com.getUnits();
 
     if (chars < 50)
       return 10;
@@ -33,8 +29,8 @@ public class NormalPaymentPlan extends PaymentPlan implements Serializable {
     return 2 * chars;
   }
 
-  public int cost(VoiceCommunication com) {
-    int base = 20;
+  public double cost(VoiceCommunication com) {
+    double base = 20 * com.getUnits();
 
     if (com.getSender().isFriend(com.getSender().getId()))
       base *= 0.5;
@@ -42,12 +38,17 @@ public class NormalPaymentPlan extends PaymentPlan implements Serializable {
     return base;
   }
 
-  public int cost(VideoCommunication com) {
-    int base = 30;
+  public double cost(VideoCommunication com) {
+    double base = 30 * com.getUnits();
 
     if (com.getSender().isFriend(com.getSender().getId()))
       base *= 0.5;
 
     return base;
+  }
+
+  @Override
+  public String toString() {
+    return "NORMAL";
   }
 }

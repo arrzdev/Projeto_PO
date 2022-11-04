@@ -2,8 +2,14 @@ package prr.terminals;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import prr.communications.Communication;
+import prr.communications.TextCommunication;
+import prr.communications.VoiceCommunication;
+
+import prr.payments.PaymentPlan;
+
 import prr.clients.Client;
 
 public class Terminal implements Serializable {
@@ -17,10 +23,10 @@ public class Terminal implements Serializable {
   private String _id;
 
   // TODO: check if it is int or long
-  private int _payments = 0;
-  private int _debts = 0;
+  private double _payments = 0;
+  private double _debts = 0;
 
-  private ArrayList<String> _friends = new ArrayList<String>();
+  private TreeMap<String, Terminal> _friends = new TreeMap<String, Terminal>();
 
   private ArrayList<Communication> _sentComms = new ArrayList<Communication>();
   private ArrayList<Communication> _receivedComms = new ArrayList<Communication>();
@@ -36,6 +42,18 @@ public class Terminal implements Serializable {
     _state = state;
   }
 
+  public TerminalState getTerminalState() {
+    return _state;
+  }
+
+  public Communication getCurrentCommunication() {
+    return _currentComm;
+  }
+
+  public void setCurrentCommunication(Communication communication) {
+    _currentComm = communication;
+  }
+
   public Client getClient() {
     return _client;
   }
@@ -44,12 +62,50 @@ public class Terminal implements Serializable {
     return _id;
   }
 
-  public long getPayments() {
+  public double getPayments() {
     return _payments;
   }
 
-  public long getDebts() {
+  public double getDebts() {
     return _debts;
+  }
+
+  public double pay(Communication communication) {
+    double cost = communication.getCost();
+    communication.setPaid();
+    _debts -= cost;
+    _payments += cost;
+
+    _client.getPaymentPlan().update();
+
+    return cost;
+  }
+
+  public double addDebt(Communication communication) {
+    PaymentPlan paymentPlan = _client.getPaymentPlan();
+
+    double cost = paymentPlan.cost(communication);
+    _debts += cost;
+
+    if (_client.getPaymentPlan().toString().equals("GOLD")) {
+      if (communication.getType() == "VIDEO")
+        paymentPlan.increaseStreak();
+
+      else
+        paymentPlan.resetStreak();
+    }
+
+    else if (_client.getPaymentPlan().toString().equals("PLATINIUM")) {
+      if (communication.getType() == "TEXT")
+        paymentPlan.increaseStreak();
+
+      else
+        paymentPlan.resetStreak();
+    }
+
+    paymentPlan.update();
+
+    return cost;
   }
 
   public void registerSentCoommunication(Communication comm) {
@@ -72,17 +128,24 @@ public class Terminal implements Serializable {
     return _sentComms.size() + _receivedComms.size();
   }
 
-  public void addFriend(String friendId) {
-    if (!_friends.contains(friendId))
-      _friends.add(friendId);
+  public void addFriend(Terminal friend) {
+    _friends.put(friend.getId(), friend);
   }
 
   public void removeFriend(String friendId) {
     _friends.remove(friendId);
   }
 
+  public void removeFriend(Terminal friend) {
+    _friends.remove(friend.getId());
+  }
+
+  public Terminal getFriend(String friendId) {
+    return _friends.get(friendId);
+  }
+
   public boolean isFriend(String friendId) {
-    return _friends.contains(friendId);
+    return _friends.get(friendId) != null;
   }
 
   /**
@@ -94,7 +157,7 @@ public class Terminal implements Serializable {
    **/
   public boolean canEndCurrentCommunication() {
     // return false;
-    return _currentComm != null && _state.equals("BUSY") && _currentComm.getSender().getId().equals(_id);
+    return _currentComm != null && _state.toString().equals("BUSY") && _currentComm.getSender().getId().equals(_id);
   }
 
   /**
@@ -103,11 +166,58 @@ public class Terminal implements Serializable {
    * @return true if this terminal is neither off neither busy, false otherwise.
    **/
   public boolean canStartCommunication() {
-    return !(_state.equals("OFF") || _state.equals("BUSY"));
+    return !(_state.toString().equals("OFF") || _state.toString().equals("BUSY"));
   }
 
-  public void endCurrentCommunication() {
+  public TextCommunication sendTextCommunication(int communication_id, Terminal receiver, String textMessage) {
+    TextCommunication textCom = new TextCommunication(communication_id, this, receiver, textMessage);
 
+    registerSentCoommunication(textCom);
+
+    receiver.registerReceivedCoommunication(textCom);
+
+    double cost = addDebt(textCom);
+
+    textCom.setCost(cost);
+
+    return textCom;
+  }
+
+  public VoiceCommunication startVoiceCommunication(int communication_id, Terminal receiver) {
+    VoiceCommunication voiceCom = new VoiceCommunication(communication_id, this, receiver);
+
+    _currentComm = voiceCom;
+
+    setTerminalState(new BusyState(this));
+
+    registerSentCoommunication(voiceCom);
+
+    receiver.setCurrentCommunication(_currentComm);
+
+    receiver.setTerminalState(new BusyState(receiver));
+
+    receiver.registerReceivedCoommunication(voiceCom);
+
+    return voiceCom;
+  }
+
+  public double endCurrentVoiceCommunication(int duration) {
+    VoiceCommunication currentVoiceComm = (VoiceCommunication) _currentComm;
+
+    currentVoiceComm.setDuration(duration);
+
+    Terminal receiver = currentVoiceComm.getReceiver();
+    receiver.setCurrentCommunication(null);
+    receiver.setTerminalState(new IdleState(receiver));
+
+    setCurrentCommunication(null);
+    setTerminalState(new IdleState(this));
+
+    double cost = addDebt(_currentComm);
+
+    currentVoiceComm.setCost(cost);
+
+    return cost;
   }
 
   public String getTerminalType() {
@@ -116,13 +226,14 @@ public class Terminal implements Serializable {
 
   @Override
   public String toString() {
+
     String friends = "";
 
-    if (_friends.size() != 0) {
-      friends = "|" + String.join(", ", _friends);
-    }
+    if (_friends.size() != 0)
+      friends = "|" + String.join(", ", _friends.keySet());
 
-    return String.format("%s|%s|%s|%s|0|0%s", getTerminalType(), getId(), getClient().getId(), _state.toString(),
+    return String.format("%s|%s|%s|%s|%x|%x%s", getTerminalType(), getId(), getClient().getId(),
+        _state.toString(), Math.round(_payments), Math.round(_debts),
         friends);
   }
 }
